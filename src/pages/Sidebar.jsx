@@ -19,7 +19,7 @@ export default function Sidebar() {
             <MobileSidebar />
 
             {/* Desktop Sidebar layout */}
-            <div className="flex h-screen bg-gray-100">
+            <div className="flex h-screen bg-gray-100 dark:bg-primary-dark dark:text-primary-light">
                 {/* --- Static Sidebar for Desktop --- */}
                 <DesktopSidebar />
 

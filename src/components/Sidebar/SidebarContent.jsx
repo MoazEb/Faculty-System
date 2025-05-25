@@ -4,10 +4,12 @@ import useSidebarStore from "../../stores/useSidebarStore";
 import { HouseIcon, SignOutIcon, XIcon } from "@phosphor-icons/react";
 import useAuthStore from "../../stores/useAuthStore";
 import { adminNavigation, teachingStaffNavigation, studentsNavigation } from "../../constants/navigation";
+import ThemeToggle from "../common/ThemeToggle";
 
 export default function SidebarContent() {
-    const activeLinkStyle = "bg-[#ede7f6] text-primary font-semibold";
-    const defaultLinkStyle = "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
+    const activeLinkStyle = "bg-[#ede7f6] dark:bg-gray-100/5 text-primary font-semibold";
+    const defaultLinkStyle =
+        "text-gray-600 dark:text-primary-light hover:bg-gray-100 dark:hover:bg-secondary-dark dark:hover:text-primary-light hover:text-gray-900";
     const { toggle } = useSidebarStore();
     const { role, logout } = useAuthStore();
     let navigation = [];
@@ -30,8 +32,8 @@ export default function SidebarContent() {
     return (
         <>
             {/* Header */}
-            <div className="flex items-center justify-between flex-shrink-0 px-4 h-16 border-b border-gray-200">
-                <h1 className="text-lg font-semibold text-primary truncate">Welcome, {role}</h1>
+            <div className="flex items-center justify-between flex-shrink-0 px-4 h-16 border-b border-gray-200 dark:border-secondary-dark">
+                <h1 className="text-lg font-semibold text-primary dark:text-primary-light truncate">Welcome, {role}</h1>
                 {/* Close button - only for mobile view*/}
                 <button
                     type="button"
@@ -64,7 +66,8 @@ export default function SidebarContent() {
             </nav>
 
             {/* Logout */}
-            <div className="flex-shrink-0 px-2 pt-4 pb-4 border-t border-gray-200">
+            <div className="flex-shrink-0 px-2 pt-4 pb-4 border-t border-gray-200 dark:border-secondary-dark">
+                <ThemeToggle />
                 <button
                     onClick={logout}
                     className={`group flex items-center px-2 py-4 text-sm  w-full cursor-pointer rounded-md transition-colors duration-150 ease-in-out ${defaultLinkStyle}`}
