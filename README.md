@@ -1,3 +1,1 @@
-# Collage Management System
 
----
