@@ -3,6 +3,7 @@ import Modal from "react-modal";
 import toast from "react-hot-toast";
 import { useCoursesStore } from "../../stores/useCoursesStore";
 import Spinner from "../common/Spinner";
+import { CaretDownIcon } from "@phosphor-icons/react";
 
 const AddCourseModal = ({ isOpen, onClose, selectedLevel, selectedSemester }) => {
     const [formData, setFormData] = useState({
@@ -48,10 +49,10 @@ const AddCourseModal = ({ isOpen, onClose, selectedLevel, selectedSemester }) =>
 
     return (
         <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Add Course Modal">
-            <h2 className="text-2xl font-semibold mb-4">Add Course</h2>
+            <h2 className="text-2xl font-semibold mb-4 dark:text-primary-light">Add Course</h2>
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="name" className="block text-sm font-medium dark:text-gray-300 mb-1">
                         Course Name
                     </label>
                     <input
@@ -61,12 +62,12 @@ const AddCourseModal = ({ isOpen, onClose, selectedLevel, selectedSemester }) =>
                         placeholder="Ex: Computer Networks"
                         value={formData.name || ""}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-secondary-dark dark:border-neutral-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
                         required
                     />
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="code" className="block text-sm font-medium dark:text-gray-300 mb-1">
                         Course Code
                     </label>
                     <input
@@ -76,13 +77,13 @@ const AddCourseModal = ({ isOpen, onClose, selectedLevel, selectedSemester }) =>
                         placeholder="Ex: CS101"
                         value={formData.code || ""}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-secondary-dark dark:border-neutral-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
                         required
                     />
                 </div>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label htmlFor="creditHours" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="creditHours" className="block text-sm font-medium dark:text-gray-300 mb-1">
                             Credit Hours (1-3)
                         </label>
                         <input
@@ -93,94 +94,114 @@ const AddCourseModal = ({ isOpen, onClose, selectedLevel, selectedSemester }) =>
                             max="3"
                             value={formData.creditHours}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-secondary-dark dark:border-neutral-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
                             required
                         />
                     </div>
                     <div>
-                        <label htmlFor="level" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="level" className="block text-sm font-medium dark:text-gray-300 mb-1">
                             Level (1-4)
                         </label>
-                        <select
-                            name="level"
-                            id="level"
-                            value={formData.level}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
-                            required
-                        >
-                            {[1, 2, 3, 4].map((level) => (
-                                <option key={level} value={level}>
-                                    Level {level}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="relative w-full">
+                            <select
+                                name="level"
+                                id="level"
+                                value={formData.level}
+                                onChange={handleChange}
+                                className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
+                                required
+                            >
+                                {[1, 2, 3, 4].map((level) => (
+                                    <option key={level} value={level}>
+                                        Level {level}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <CaretDownIcon size={16} className="text-gray-400" />
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label htmlFor="semester" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="semester" className="block text-sm font-medium dark:text-gray-300 mb-1">
                             Semester
                         </label>
-                        <select
-                            name="semester"
-                            id="semester"
-                            value={formData.semester}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
-                            required
-                        >
-                            <option value={1}>Semester 1</option>
-                            <option value={2}>Semester 2</option>
-                        </select>
+                        <div className="relative w-full">
+                            <select
+                                name="semester"
+                                id="semester"
+                                value={formData.semester}
+                                onChange={handleChange}
+                                className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
+                                required
+                            >
+                                <option value={1}>Semester 1</option>
+                                <option value={2}>Semester 2</option>
+                            </select>
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <CaretDownIcon size={16} className="text-gray-400" />
+                            </div>
+                        </div>
                     </div>
                     <div>
-                        <label htmlFor="lectureHours" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="lectureHours" className="block text-sm font-medium dark:text-gray-300 mb-1">
                             Lecture Hours
                         </label>
-                        <select
-                            name="lectureHours"
-                            id="lectureHours"
-                            value={formData.lectureHours}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
-                            required
-                        >
-                            <option value={0}>0 Hours</option>
-                            <option value={1}>1 Hour</option>
-                            <option value={2}>2 Hours</option>
-                            <option value={3}>3 Hours</option>
-                        </select>
+                        <div className="relative w-full">
+                            <select
+                                name="lectureHours"
+                                id="lectureHours"
+                                value={formData.lectureHours}
+                                onChange={handleChange}
+                                className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
+                                required
+                            >
+                                <option value={0}>0 Hours</option>
+                                <option value={1}>1 Hour</option>
+                                <option value={2}>2 Hours</option>
+                                <option value={3}>3 Hours</option>
+                            </select>
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <CaretDownIcon size={16} className="text-gray-400" />
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="type" className="block text-sm font-medium dark:text-gray-300 mb-1">
                         Course Type
                     </label>
-                    <select
-                        name="type"
-                        id="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
-                        required
-                    >
-                        <option value={0}>Lecture</option>
-                        <option value={1}>Lab</option>
-                    </select>
+                    <div className="relative w-full">
+                        <select
+                            name="type"
+                            id="type"
+                            value={formData.type}
+                            onChange={handleChange}
+                            className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
+                            required
+                        >
+                            <option value={0}>Lecture</option>
+                            <option value={1}>Lab</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <CaretDownIcon size={16} className="text-gray-400" />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex justify-end gap-3 mt-6">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer"
+                        className="px-4 py-2 text-sm font-medium dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer dark:focus:ring-offset-secondary-dark"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer"
+                        className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer dark:focus:ring-offset-secondary-dark"
                     >
                         {isLoading ? (
                             <div className="flex items-center gap-2">

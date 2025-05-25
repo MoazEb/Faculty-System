@@ -70,15 +70,15 @@ const ManageCourses = () => {
     });
 
     return (
-        <div className="p-4 md:p-6 lg:p-8">
-            <h1 className="text-3xl md:text-4xl mb-6 font-light text-gray-700 text-center md:text-left">
+        <div className="p-4 md:p-6 lg:p-8 dark:bg-primary-dark">
+            <h1 className="text-3xl md:text-4xl mb-6 font-light text-gray-700 dark:text-primary-light text-center md:text-left">
                 Manage Courses
             </h1>
 
             <CourseControls onAddCourse={handleAddCourse} onSearch={handleSearch} onFilterChange={handleFilterChange} />
 
-            <div className="lg:bg-white lg:shadow-md lg:rounded-lg overflow-hidden">
-                <div className="hidden lg:flex items-center py-3 px-4 bg-gray-50 border-b border-gray-200 font-semibold text-xs text-gray-600 uppercase tracking-wider">
+            <div className="lg:bg-white lg:dark:bg-secondary-dark lg:shadow-md lg:rounded-lg overflow-hidden">
+                <div className="hidden lg:flex items-center py-3 px-4 bg-gray-50 dark:bg-neutral-600 dark:text-primary-light border-b border-gray-200 dark:border-neutral-600 font-semibold text-xs text-gray-600 uppercase tracking-wider">
                     <div className="flex-[0_0_35%]">Course</div>
                     <div className="flex-[0_0_10%] text-center px-1">Credits</div>
                     <div className="flex-[0_0_10%] text-center px-1">Lecture Hours</div>
@@ -103,7 +103,7 @@ const ManageCourses = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="p-6 text-center text-gray-500">
+                    <div className="p-6 text-center text-gray-500 dark:text-primary-light">
                         <p>No courses found. Try adding some!</p>
                     </div>
                 )}

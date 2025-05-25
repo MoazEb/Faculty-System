@@ -22,11 +22,11 @@ export default function FormSide() {
     };
 
     return (
-        <div className="w-full lg:w-1/2 p-6 md:p-12 flex items-center justify-center">
+        <div className="dark:bg-secondary-dark w-full lg:w-1/2 p-6 md:p-12 flex items-center justify-center">
             <div className="w-full max-w-md">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">Log in</h1>
-                <p className="text-gray-500 mb-8">
-                    Don't have an account?{" "}
+                <h1 className="text-3xl font-bold dark:text-primary-light mb-2">Log in</h1>
+                <p className="text-gray-500 dark:text-gray-300 mb-8">
+                    Don't have an account?
                     <Link to="/signup" className="text-primary hover:underline">
                         Sign up
                     </Link>
@@ -42,7 +42,7 @@ export default function FormSide() {
                             onChange={handleInputChange(setUserName)}
                             required
                             disabled={isLoading}
-                            className="w-full p-4 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className="w-full p-4 border border-gray-300 dark:border-neutral-500 rounded-xl text-gray-800 dark:text-primary-light placeholder-gray-400 dark:placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
 
@@ -55,7 +55,7 @@ export default function FormSide() {
                             onChange={handleInputChange(setPassword)}
                             required
                             disabled={isLoading}
-                            className="w-full p-4 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className="w-full p-4 border border-gray-300 dark:border-neutral-500 rounded-xl text-gray-800 dark:text-primary-light placeholder-gray-400 dark:placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                         {/* show password btn */}
                         <button
@@ -63,12 +63,16 @@ export default function FormSide() {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-4 top-1/2 transform -translate-y-1/2  cursor-pointer hover:text-gray-700"
                         >
-                            {showPassword ? <EyeIcon /> : <EyeSlashIcon />}
+                            {showPassword ? (
+                                <EyeIcon color="currentColor" className="text-gray-700 dark:text-primary-light" />
+                            ) : (
+                                <EyeSlashIcon color="currentColor" className="text-gray-700 dark:text-primary-light" />
+                            )}
                         </button>
                     </div>
 
                     {/* Forgot password */}
-                    <div className="text-right mb-5">
+                    {/* <div className="text-right mb-5">
                         <Link
                             to="/forgot-password"
                             className={`text-primary text-sm hover:underline ${
@@ -78,7 +82,7 @@ export default function FormSide() {
                         >
                             Forgot password?
                         </Link>
-                    </div>
+                    </div> */}
 
                     {/* submit button */}
                     <button

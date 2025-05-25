@@ -3,13 +3,15 @@ import { TrashIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 
 export default function MobileCard({ course, handleEdit, handleDelete }) {
     return (
-        <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 overflow-hidden lg:hidden">
+        <div className="bg-white dark:bg-secondary-dark rounded-xl border border-gray-200 dark:border-neutral-600 hover:shadow-lg transition-all duration-300 overflow-hidden lg:hidden">
             {/* Header */}
-            <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
+            <div className="bg-gray-50 dark:bg-secondary-dark px-4 py-3 border-b border-gray-100 dark:border-neutral-600">
                 <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{course.code}</h3>
-                        <span className="text-sm text-gray-500 font-medium">{course.name}</span>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-primary-light mb-1">
+                            {course.code}
+                        </h3>
+                        <span className="text-sm text-gray-500 font-medium dark:text-neutral-400">{course.name}</span>
                     </div>
                     {/* Actions */}
                     <div className="flex items-center gap-2 ml-3">

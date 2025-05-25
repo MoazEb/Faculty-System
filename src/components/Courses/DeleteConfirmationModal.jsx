@@ -1,7 +1,11 @@
 import React from "react";
 import Modal from "react-modal";
+import { useCoursesStore } from "../../stores/useCoursesStore";
+import Spinner from "../common/Spinner";
 
 const DeleteConfirmationModal = ({ courseName, isOpen, onConfirm, onClose }) => {
+    const { isLoading } = useCoursesStore();
+
     const modalStyles = {
         content: {
             maxWidth: "24rem",
@@ -12,8 +16,8 @@ const DeleteConfirmationModal = ({ courseName, isOpen, onConfirm, onClose }) => 
 
     return (
         <Modal isOpen={isOpen} onRequestClose={onClose} style={modalStyles} contentLabel="Delete Confirmation Modal">
-            <h2 className="text-xl font-semibold mb-4">Confirm Deletion</h2>
-            <p className="text-gray-700 mb-6">
+            <h2 className="text-xl font-semibold mb-4 dark:text-primary-light">Confirm Deletion</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
                 Are you sure you want to delete the course "<strong>{courseName}</strong>"? This action cannot be
                 undone.
             </p>
@@ -28,7 +32,7 @@ const DeleteConfirmationModal = ({ courseName, isOpen, onConfirm, onClose }) => 
                     onClick={onConfirm}
                     className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer"
                 >
-                    Delete
+                    {isLoading ? <Spinner /> : "Delete"}
                 </button>
             </div>
         </Modal>
