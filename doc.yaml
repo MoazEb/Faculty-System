@@ -1,0 +1,1708 @@
+openapi: 3.0.0
+info:
+  title: Graduation Project API
+  version: v1.0
+  description: |
+    API for managing academic information including users, courses, teaching places, schedules, and generating timetables.
+    
+    **Real-time Timetable Processing:**
+    This API also utilizes a SignalR hub at `/api/TimeTableHub` for real-time interactive timetable generation and modification. 
+    Clients should connect to this hub for operations like loading, generating, modifying, and saving timetable contexts. 
+    Authentication for the hub is typically handled via the JWT token obtained through the HTTP authentication endpoint.
+    Refer to the `TimeTableProcessorHub.cs` and related client-side SignalR documentation for hub methods and events.
+
+servers:
+  - url: http://localhost:5165/api # Base path for API, actual controllers might add /api again. Let's assume /api is the root.
+    description: Development server (HTTP)
+  - url: https://localhost:7262/api
+    description: Development server (HTTPS)
+
+components:
+  schemas:
+    # --- Enums (as previously defined) ---
+    CourseType:
+      type: string
+      enum: [Lecture, Practical]
+      description: Type of the course.
+    FileContentType:
+      type: string
+      enum: [Students, Staff]
+      description: Content type of the file being uploaded or template requested.
+    Gender:
+      type: string
+      enum: [Male, Female]
+      description: Gender of the user.
+    Level:
+      type: string
+      enum: [None, First, Second, Third, Fourth, Graduated, TeachingAssistant, TeachingLecturer]
+      description: Academic or professional level.
+    ScheduleType:
+      type: string
+      enum: [Staff, Place]
+      description: Type of entity the schedule belongs to.
+    Semester:
+      type: string
+      enum: [Both, First, Second]
+      description: Academic semester.
+    TeachingPlaceType:
+      type: string
+      enum: [Hall, Lab, Stadium]
+      description: Type of the teaching place.
+    UserRole:
+      type: string
+      enum: [Admin, TeachingStaff, Student]
+      description: Role of the user within the system.
+    DayOfWeekEnum:
+      type: string
+      enum: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
+
+    # --- Request/Response DTOs & Models ---
+    AuthModel:
+      type: object
+      properties:
+        userName:
+          type: string
+          maxLength: 100
+          description: User's username.
+        password:
+          type: string
+          maxLength: 100
+          description: User's password.
+      required:
+        - userName
+        - password
+      example:
+        userName: "test.user.309264"
+        password: "Password123!"
+
+    AuthResponseDto:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT access token.
+        refreshToken:
+          type: string
+          description: Refresh token.
+        refreshTokenExpireTime:
+          type: string
+          format: date-time
+          description: Expiry time of the refresh token.
+      example:
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        refreshToken: "long_random_refresh_token_string"
+        refreshTokenExpireTime: "2024-08-15T10:30:00Z"
+
+    CourseCommandDto:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 100
+          minLength: 1
+          description: Unique code for the course.
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          description: Name of the course.
+        creditHours:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          description: Credit hours for the course.
+        level:
+          $ref: '#/components/schemas/Level'
+        semester:
+          $ref: '#/components/schemas/Semester'
+        type:
+          $ref: '#/components/schemas/CourseType'
+        lectureHours:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          description: Lecture hours per week for the course.
+      required:
+        - code
+        - name
+        - creditHours
+        - level
+        - semester
+        - type
+        - lectureHours
+      example:
+        code: "CS101"
+        name: "Introduction to Computer Science"
+        creditHours: 3
+        level: "First"
+        semester: "First"
+        type: "Lecture"
+        lectureHours: 3
+
+    CourseDependencyCommandDto:
+      type: object
+      properties:
+        coursesId:
+          type: array
+          items:
+            type: integer
+            format: int32
+          description: A set of course IDs that are dependencies.
+          maxItems: 50
+      required:
+        - coursesId
+      example:
+        coursesId: [2, 5, 10]
+
+    CourseQueryDto:
+      allOf:
+        - $ref: '#/components/schemas/CourseCommandDto'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+              description: Unique identifier of the course.
+      example:
+        id: 1
+        code: "CS101"
+        name: "Introduction to Computer Science"
+        creditHours: 3
+        level: "First"
+        semester: "First"
+        type: "Lecture"
+        lectureHours: 3
+
+    CourseDependenciesQueryDto:
+      type: object
+      properties:
+        parents:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseQueryDto'
+          description: List of parent courses (dependencies).
+        childs:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseQueryDto'
+          description: List of child courses (courses that depend on this one).
+      example:
+        parents:
+          - id: 2
+            code: "MA100"
+            name: "Calculus I"
+            creditHours: 4
+            level: "First"
+            semester: "First"
+            type: "Lecture"
+            lectureHours: 4
+        childs:
+          - id: 15
+            code: "CS201"
+            name: "Data Structures"
+            creditHours: 3
+            level: "Second"
+            semester: "First"
+            type: "Lecture"
+            lectureHours: 3
+
+    RegisterUserCommandDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+          maxLength: 100
+          minLength: 1
+        lastName:
+          type: string
+          maxLength: 100
+          minLength: 1
+        userName:
+          type: string
+          maxLength: 100
+          default: "New User"
+        gender:
+          $ref: '#/components/schemas/Gender'
+        role:
+          $ref: '#/components/schemas/UserRole'
+          description: Role of the user (Admin role cannot be set via this DTO).
+        level:
+          $ref: '#/components/schemas/Level'
+        dateOfBirth:
+          type: string
+          format: date
+          description: User's date of birth.
+        password:
+          type: string
+          description: User's password.
+      required:
+        - firstName
+        - lastName
+        - gender
+        - role
+        - level
+        - dateOfBirth
+        - password
+      example:
+        firstName: "Jane"
+        lastName: "Doe"
+        userName: "jane.doe.309267" # Example, actual might be generated
+        gender: "Female"
+        role: "Student"
+        level: "Second"
+        dateOfBirth: "2003-05-15"
+        password: "SecurePassword123!"
+
+    UpdateUserDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+          maxLength: 100
+          minLength: 1
+        lastName:
+          type: string
+          maxLength: 100
+          minLength: 1
+        userName:
+          type: string
+          maxLength: 100
+        gender:
+          $ref: '#/components/schemas/Gender'
+        role:
+          $ref: '#/components/schemas/UserRole'
+          description: Role of the user (Admin role cannot be set via this DTO).
+        level:
+          $ref: '#/components/schemas/Level'
+        dateOfBirth:
+          type: string
+          format: date
+          description: User's date of birth.
+      example:
+        firstName: "Jane"
+        lastName: "Smith" # Updated last name
+        userName: "jane.smith.309267"
+        gender: "Female"
+        role: "Student"
+        level: "Third" # Updated level
+        dateOfBirth: "2003-05-15"
+
+    UserInfoDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        userName:
+          type: string
+        gender:
+          $ref: '#/components/schemas/Gender'
+        role:
+          $ref: '#/components/schemas/UserRole'
+        level:
+          $ref: '#/components/schemas/Level'
+        dateOfBirth:
+          type: string
+          format: date
+      example:
+        firstName: "John"
+        lastName: "Doe"
+        userName: "john.doe.309264"
+        gender: "Male"
+        role: "TeachingStaff"
+        level: "TeachingLecturer"
+        dateOfBirth: "1985-10-20"
+
+    TeachingPlaceCommandDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        capacity:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100000
+        type:
+          $ref: '#/components/schemas/TeachingPlaceType'
+      required:
+        - name
+        - capacity
+        - type
+      example:
+        name: "Lecture Hall A101"
+        capacity: 150
+        type: "Hall"
+
+    TeachingPlaceQueryDto:
+      allOf:
+        - $ref: '#/components/schemas/TeachingPlaceCommandDto'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+      example:
+        id: 1
+        name: "Lecture Hall A101"
+        capacity: 150
+        type: "Hall"
+
+    ScheduleBase:
+      type: object
+      properties:
+        day:
+          $ref: '#/components/schemas/DayOfWeekEnum'
+        startFrom:
+          type: integer
+          format: int32
+          minimum: 8
+          maximum: 17
+        endTo:
+          type: integer
+          format: int32
+          minimum: 9
+          maximum: 18
+      required:
+        - day
+        - startFrom
+        - endTo
+      example:
+        day: "Monday"
+        startFrom: 10
+        endTo: 12
+
+    ScheduleQueryDto:
+      allOf:
+        - $ref: '#/components/schemas/ScheduleBase'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+      example:
+        id: 101
+        day: "Monday"
+        startFrom: 10
+        endTo: 12
+
+    PaginationResultModelCourseQueryDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseQueryDto'
+        nextPageUrl:
+          type: string
+          nullable: true
+        isThereNextPage:
+          type: boolean
+          readOnly: true
+      example:
+        results:
+          - id: 1
+            code: "CS101"
+            name: "Introduction to Computer Science"
+            creditHours: 3
+            level: "First"
+            semester: "First"
+            type: "Lecture"
+            lectureHours: 3
+          - id: 2
+            code: "MA100"
+            name: "Calculus I"
+            creditHours: 4
+            level: "First"
+            semester: "First"
+            type: "Lecture"
+            lectureHours: 4
+        nextPageUrl: "api/courses?page=1&sortByLevelAscending=true"
+        isThereNextPage: true
+
+    PaginationResultModelTeachingPlaceQueryDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeachingPlaceQueryDto'
+        nextPageUrl:
+          type: string
+          nullable: true
+        isThereNextPage:
+          type: boolean
+          readOnly: true
+      example:
+        results:
+          - id: 1
+            name: "Lecture Hall A101"
+            capacity: 150
+            type: "Hall"
+          - id: 2
+            name: "Physics Lab B203"
+            capacity: 30
+            type: "Lab"
+        nextPageUrl: "api/teachingPlaces?page=1"
+        isThereNextPage: true
+
+    PaginationResultModelUserInfoDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserInfoDto'
+        nextPageUrl:
+          type: string
+          nullable: true
+        isThereNextPage:
+          type: boolean
+          readOnly: true
+      example:
+        results:
+          - firstName: "John"
+            lastName: "Doe"
+            userName: "john.doe.309264"
+            gender: "Male"
+            role: "TeachingStaff"
+            level: "TeachingLecturer"
+            dateOfBirth: "1985-10-20"
+          - firstName: "Jane"
+            lastName: "Doe"
+            userName: "jane.doe.309267"
+            gender: "Female"
+            role: "Student"
+            level: "Second"
+            dateOfBirth: "2003-05-15"
+        nextPageUrl: "api/users?page=1&role=Student"
+        isThereNextPage: true
+          
+    DataFileTemplateModel:
+      type: object
+      properties:
+        fileType:
+          type: string
+          description: "Supported file extensions (e.g., xls,xlsx)"
+        templateAsHtml:
+          type: string
+          format: html # Indicate it's HTML content
+          description: "HTML representation of the template structure."
+      example:
+        fileType: "xls,xlsx"
+        templateAsHtml: "<!DOCTYPE html><html><head><title>Student Template</title></head><body><table><thead><tr><th>FirstName</th><th>LastName</th>...</tr></thead><tbody><tr><td>John</td><td>Doe</td>...</tr></tbody></table></body></html>"
+
+    DashboardStatisticalModel:
+      type: object
+      properties:
+        totalStudents:
+          type: integer
+          format: int32
+        totalTeachingStaff:
+          type: integer
+          format: int32
+        totalTeachingPlaces:
+          type: integer
+          format: int32
+        totalCourses:
+          type: integer
+          format: int32
+      example:
+        totalStudents: 1250
+        totalTeachingStaff: 85
+        totalTeachingPlaces: 40
+        totalCourses: 210
+
+    GeneratedTimeTableModel:
+      type: object
+      properties:
+        table:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/TimeTableInterval'
+      description: Represents the structure of a timetable for a specific level.
+      example:
+        table:
+          Monday:
+            - startFrom: 9
+              endTo: 11
+              info:
+                courseCode: "CS101"
+                courseType: "Lecture"
+                courseLevel: "First"
+                teachingPlace: "Hall A"
+                teachingAssistant: "Dr. Smith (smith.j.123)"
+          Tuesday: [] # etc.
+
+    TimeTableInterval:
+      type: object
+      properties:
+        startFrom:
+          type: integer
+          format: int32
+        endTo:
+          type: integer
+          format: int32
+        info:
+          $ref: '#/components/schemas/TimeTableIntervalInfo'
+
+    TimeTableIntervalInfo:
+      type: object
+      properties:
+        courseCode:
+          type: string
+        courseType:
+          $ref: '#/components/schemas/CourseType'
+        courseLevel:
+          $ref: '#/components/schemas/Level'
+        teachingPlace:
+          type: string
+        teachingAssistant:
+          type: string
+
+    TimeTableQueryDto:
+      allOf:
+        - $ref: '#/components/schemas/GeneratedTimeTableModel'
+      # No additional properties beyond GeneratedTimeTableModel
+      # Example is the same as GeneratedTimeTableModel
+
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+          description: A URI reference [RFC3986] that identifies the problem type.
+        title:
+          type: string
+          nullable: true
+          description: A short, human-readable summary of the problem type.
+        status:
+          type: integer
+          format: int32
+          nullable: true
+          description: The HTTP status code ([RFC7231], Section 6) generated by the origin server for this occurrence of the problem.
+        detail:
+          type: string
+          nullable: true
+          description: A human-readable explanation specific to this occurrence of the problem.
+        instance:
+          type: string
+          nullable: true
+          description: A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.
+      # 'extensions' allows for additional members.
+      # Based on Program.cs, 'requestId' and 'traceId' might be present.
+      example:
+        type: "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+        title: "One or more validation errors occurred."
+        status: 400
+        detail: "The 'corId' field is required."
+        instance: "POST /api/Courses/0/Dependencies"
+        # extensions:
+        #   traceId: "00-abcdef1234567890abcdef1234567890-1234567890abcdef-00"
+        #   requestId: "8000001f-0001-ff00-b63f-84710c7967bb"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key # From appsettings.json
+      description: API Key needed to access the endpoints. Most endpoints are protected by this.
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token for authentication. Required for endpoints marked with `[Authorize]`.
+
+security:
+  - ApiKeyAuth: [] # Global default: API key is required for all paths.
+                   # Endpoints with ExcludeFromApiKeyAttribute would override this,
+                   # but none are present in the provided controllers.
+
+paths:
+  /Authentications:
+    post:
+      tags:
+        - Authentications
+      summary: Authenticate a user
+      operationId: AuthUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthModel'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponseDto'
+        '400':
+          description: Invalid credentials or bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      # No BearerAuth here, as this is for obtaining the token.
+      # ApiKeyAuth applies globally.
+
+  /Courses:
+    post:
+      tags:
+        - Courses
+      summary: Add a new course
+      operationId: AddCourse
+      security:
+        - BearerAuth: [] # Requires JWT
+        # - ApiKeyAuth: [] # Already globally applied
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCommandDto'
+      responses:
+        '200':
+          description: Course added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized' # For Bearer or API Key
+        '403':
+          $ref: '#/components/responses/Forbidden'   # For Bearer (role check)
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      tags:
+        - Courses
+      summary: Get courses with pagination
+      operationId: GetCoursesByPagination
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (0-indexed).
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: sortByLevelAscending
+          in: query
+          description: Sort courses by level in ascending order.
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: A paginated list of courses.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResultModelCourseQueryDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags:
+        - Courses
+      summary: Delete multiple courses by their IDs
+      operationId: DeleteCourses
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        description: A list of course IDs to delete.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int32
+              maxItems: 50
+              example: [1, 2, 3]
+      responses:
+        '200':
+          description: Courses deleted successfully, returns the updated pagination result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResultModelCourseQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /Courses/{corId}:
+    put:
+      tags:
+        - Courses
+      summary: Update an existing course
+      operationId: UpdateCourse
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: corId
+          in: path
+          required: true
+          description: ID of the course to update.
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCommandDto'
+      responses:
+        '200':
+          description: Course updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /Courses/{corId}/Dependencies:
+    post:
+      tags:
+        - Courses
+      summary: Add dependencies to a course
+      operationId: AddCourseDependencies
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: corId
+          in: path
+          required: true
+          description: ID of the child course to add dependencies to.
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDependencyCommandDto'
+      responses:
+        '200':
+          description: Dependencies added successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDependenciesQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      tags:
+        - Courses
+      summary: Get dependencies for a course
+      operationId: GetCourseDependencies
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: corId
+          in: path
+          required: true
+          description: ID of the course to get dependencies for.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Course dependencies retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDependenciesQueryDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags:
+        - Courses
+      summary: Delete dependencies from a course
+      operationId: DeleteCourseDependencies
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: corId
+          in: path
+          required: true
+          description: ID of the child course to remove dependencies from.
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDependencyCommandDto'
+      responses:
+        '200':
+          description: Dependencies deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDependenciesQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /FromFileRegisterations/{contentType}:
+    post:
+      tags:
+        - FromFileRegisterations
+      summary: Register users (students or staff) from a file
+      operationId: RegisterFileData
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: contentType
+          in: path
+          required: true
+          description: Type of content in the file (Students or Staff).
+          schema:
+            $ref: '#/components/schemas/FileContentType'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file containing user data (e.g., .xls, .xlsx).
+      responses:
+        '200':
+          description: File data registered successfully. Returns list of registered users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserInfoDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      tags:
+        - FromFileRegisterations
+      summary: Get a template for file-based data registration
+      operationId: GetFileTemplate
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: contentType
+          in: path
+          required: true
+          description: Type of content for which the template is requested.
+          schema:
+            $ref: '#/components/schemas/FileContentType'
+      responses:
+        '200':
+          description: File template retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataFileTemplateModel'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /Statistics:
+    get:
+      tags:
+        - Statistics
+      summary: Get dashboard statistical model
+      operationId: GetStatisticalModel
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistical model retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStatisticalModel'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /TeachingPlaces:
+    post:
+      tags:
+        - TeachingPlaces
+      summary: Add a new teaching place
+      operationId: AddTeachingPlace
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeachingPlaceCommandDto'
+      responses:
+        '200':
+          description: Teaching place added successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeachingPlaceQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      tags:
+        - TeachingPlaces
+      summary: Get teaching places with pagination
+      operationId: GetTeachingPlacesByPagination
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (0-indexed).
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        '200':
+          description: A paginated list of teaching places.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResultModelTeachingPlaceQueryDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags:
+        - TeachingPlaces
+      summary: Delete multiple teaching places by their IDs
+      operationId: DeleteTeachingPlaces
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        description: A list of teaching place IDs to delete.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int32
+              maxItems: 50
+              example: [10, 25]
+      responses:
+        '200':
+          description: Teaching places deleted successfully, returns updated pagination.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResultModelTeachingPlaceQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /TeachingPlaces/{placeId}:
+    put:
+      tags:
+        - TeachingPlaces
+      summary: Update an existing teaching place
+      operationId: UpdateTeachingPlace
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          description: ID of the teaching place to update.
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeachingPlaceCommandDto'
+      responses:
+        '200':
+          description: Teaching place updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeachingPlaceQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /TeachingPlaces/{placeId}/Schedules:
+    post:
+      tags:
+        - TeachingPlaces
+      summary: Add schedules to a teaching place
+      operationId: AddTeachingPlaceSchedules
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          description: ID of the teaching place.
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        description: A set of schedules to add.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ScheduleBase'
+              maxItems: 50
+              example:
+                - day: "Monday"
+                  startFrom: 9
+                  endTo: 11
+                - day: "Wednesday"
+                  startFrom: 14
+                  endTo: 16
+      responses:
+        '200':
+          description: Schedules added successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduleQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      tags:
+        - TeachingPlaces
+      summary: Get schedules for a teaching place
+      operationId: GetTeachingPlaceSchedules
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          description: ID of the teaching place.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Schedules retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduleQueryDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags:
+        - TeachingPlaces
+      summary: Delete schedules from a teaching place
+      operationId: DeleteTeachingPlaceSchedules
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          description: ID of the teaching place.
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        description: A set of schedule IDs to delete.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [101, 105]
+      responses:
+        '200':
+          description: Schedules deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduleQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /TimeTables:
+    get:
+      tags:
+        - TimeTables
+      summary: Get the active timetable for a specific level
+      operationId: GetActiveTimeTable
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: level
+          in: query
+          required: true
+          description: The academic level for which to retrieve the timetable.
+          schema:
+            $ref: '#/components/schemas/Level'
+      responses:
+        '200':
+          description: Active timetable retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeTableQueryDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No active timetable found or timetable for specified level not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /Users:
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      operationId: RegisterUser
+      security:
+        - BearerAuth: [] # Admin action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserCommandDto'
+      responses:
+        '200':
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      tags:
+        - Users
+      summary: Get users with pagination by role
+      operationId: GetUsersByPagination
+      security:
+        - BearerAuth: [] # Admin action
+      parameters:
+        - name: page
+          in: query
+          required: true
+          description: Page number (0-indexed).
+          schema:
+            type: integer
+            format: int32
+        - name: role
+          in: query
+          required: true
+          description: Filter users by their role.
+          schema:
+            $ref: '#/components/schemas/UserRole'
+      responses:
+        '200':
+          description: A paginated list of users.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResultModelUserInfoDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /Users/{fullId}:
+    put:
+      tags:
+        - Users
+      summary: Update user information
+      operationId: UpdateUser
+      security:
+        - BearerAuth: [] # Admin action
+      parameters:
+        - name: fullId
+          in: path
+          required: true
+          description: Full ID of the user to update.
+          schema:
+            type: string
+            maxLength: 50
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200':
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      tags:
+        - Users
+      summary: Get user information by full ID
+      operationId: GetUserInfo
+      security:
+        - BearerAuth: [] # Usually for admin or the user themselves
+      parameters:
+        - name: fullId
+          in: path
+          required: true
+          description: Full ID of the user.
+          schema:
+            type: string
+            maxLength: 50
+      responses:
+        '200':
+          description: User information retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /Users/{fullId}/Authentications:
+    get: # GetAccessToken
+      tags:
+        - Users
+        - Authentications
+      summary: Get a new access token using a refresh token
+      description: This endpoint allows anonymous access if the API key is provided (due to global middleware).
+      operationId: GetAccessTokenForUser
+      # ApiKeyAuth applies globally. [AllowAnonymous] bypasses BearerAuth.
+      parameters:
+        - name: fullId
+          in: path
+          required: true
+          description: User's full ID.
+          schema:
+            type: string
+            maxLength: 50
+        - name: refreshToken
+          in: query
+          required: true
+          description: The refresh token.
+          schema:
+            type: string
+            maxLength: 50
+      responses:
+        '200':
+          description: New access token generated successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The new JWT access token.
+                example: "eyJhbGciOiJIUzI1NiIs..."
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized' # For API Key if missing/invalid
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity' # Token expired
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete: # Logout
+      tags:
+        - Users
+        - Authentications
+      summary: Logout a user by revoking their refresh token
+      operationId: LogoutUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: fullId
+          in: path
+          required: true
+          description: User's full ID.
+          schema:
+            type: string
+            maxLength: 50
+      requestBody:
+        required: true
+        description: The refresh token to revoke.
+        content:
+          application/json: # FromBody string refreshToken
+            schema:
+              type: string
+              maxLength: 50
+              example: "some_refresh_token_string"
+      responses:
+        '200':
+          description: User logged out successfully. # Ok(res.Data) and Result is likely empty success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /Users/{userName}/Schedules:
+    post:
+      tags:
+        - Users
+      summary: Add schedules for a staff member
+      operationId: AddStaffSchedules
+      security:
+        - BearerAuth: [] # Admin action
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: Username of the staff member.
+          schema:
+            type: string
+            maxLength: 100
+      requestBody:
+        required: true
+        description: A set of schedules to add.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ScheduleBase'
+              maxItems: 50
+              example:
+                - day: "Tuesday"
+                  startFrom: 10
+                  endTo: 13
+                - day: "Friday"
+                  startFrom: 8
+                  endTo: 10
+      responses:
+        '200':
+          description: Schedules added successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduleQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    get:
+      tags:
+        - Users
+      summary: Get schedules for a staff member
+      operationId: GetStaffSchedules
+      security:
+        - BearerAuth: [] # Admin or the staff member themselves
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: Username of the staff member.
+          schema:
+            type: string
+            maxLength: 50
+      responses:
+        '200':
+          description: Schedules retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduleQueryDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags:
+        - Users
+      summary: Delete schedules for a staff member
+      operationId: DeleteStaffSchedules
+      security:
+        - BearerAuth: [] # Admin action
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: Username of the staff member.
+          schema:
+            type: string
+            maxLength: 50
+      requestBody:
+        required: true
+        description: A set of schedule IDs to delete.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [201, 205]
+      responses:
+        '200':
+          description: Schedules deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduleQueryDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  # --- Reusable Responses ---
+  responses:
+    BadRequest:
+      description: Bad Request - The request was invalid or cannot be otherwise served.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Unauthorized:
+      description: Unauthorized - API key or Bearer token is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Forbidden:
+      description: Forbidden - The client does not have access rights to the content.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    NotFound:
+      description: Not Found - The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Conflict:
+      description: Conflict - The request could not be completed due to a conflict with the current state of the resource (e.g., duplicate).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    UnprocessableEntity:
+      description: Unprocessable Entity - The request was well-formed but was unable to be followed due to semantic errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    ServiceUnavailable:
+      description: Service Unavailable - The server is not ready to handle the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
