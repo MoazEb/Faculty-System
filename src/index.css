@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+
+/* add here any tailwind custom class you want */
+@theme{
+    --font-poppins: Poppins, Tahoma, Verdana, sans-serif ;
+    --color-primary: #7e57c2;
+    --color-secondary: #6a4aaa;
+}
+
+body{
+    font-family: var(--font-poppins);
+}
+
+/* In your global CSS file */
+.ReactModal__Overlay {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 50;
+}
+
+.ReactModal__Content {
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin-right: -50% !important;
+    transform: translate(-50%, -50%) !important;
+    padding: 24px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    max-height: 90vh !important;
+    overflow: auto !important;
+    border: none !important;
+}
+
+/* Add responsive margins for small screens */
+@media (max-width: 640px) {
+    .ReactModal__Content {
+        width: calc(100vw - 30px) !important;
+        margin: 0 !important;
+    }
+}
