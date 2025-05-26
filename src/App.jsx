@@ -7,6 +7,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
 import Sidebar from "./pages/Sidebar";
 import ManageCourses from "./pages/ManageCourses";
+import ManageStudents from "./pages/ManageStudents";
 
 function App() {
     return (
@@ -23,7 +24,7 @@ function App() {
                     <Route path="explore" element={<h1>Explore</h1>} />
                     <Route path="manage-timetables" element={<h1>Manage Timetables</h1>} />
                     <Route path="manage-places" element={<h1>Manage Places</h1>} />
-                    <Route path="manage-students" element={<h1>Manage Students</h1>} />
+                    <Route path="manage-students" element={<ManageStudents />} />
                     <Route path="manage-courses" element={<ManageCourses />} />
                     <Route path="manage-teaching-staff" element={<h1>Manage Teaching Staff</h1>} />
                 </Route>
