@@ -2,7 +2,7 @@ import { HouseIcon, CalendarIcon, BookIcon, UsersIcon, BriefcaseIcon, Chalkboard
 
 export const adminNavigation = [
     { name: "Home", href: "/", icon: HouseIcon },
-    { name: "Manage Timetables", href: "/manage-timetables", icon: CalendarIcon },
+    // { name: "Manage Timetables", href: "/manage-timetables", icon: CalendarIcon },
     { name: "Manage Courses", href: "/manage-courses", icon: BookIcon },
     { name: "Manage Students", href: "/manage-students", icon: UsersIcon },
     { name: "Manage Teaching Staff", href: "/manage-teaching-staff", icon: ChalkboardTeacherIcon },
