@@ -13,6 +13,12 @@ export const deleteStudent = async (usernamesList) => await api.delete(`/Users?r
 export const addStudent = async (newStudentData) => await api.post('/Users/', newStudentData);// role is 2 for student
 
 
+// Teaching Staff
+export const addTeachingStaff = async (newTeachingStaffData) => await api.post('/Users/', newTeachingStaffData);// role is 1 for teaching staff
+export const getTeachingStaff = async (page = 0, level = 1) => await api.get(`/Users?page=${page}&role=1&level=${level}`)
+export const updateTeachingStaff = async (username, updatedData) => await api.put(`/Users/${username}`, updatedData)
+export const deleteTeachingStaff = async (usernamesList) => await api.delete(`/Users?role=1`, { data: usernamesList }); // string arr of usernames
+
 
 // Teaching Places
 export const addTeachingPlace = async (newPlaceData) => await api.post('/TeachingPlaces', newPlaceData);
