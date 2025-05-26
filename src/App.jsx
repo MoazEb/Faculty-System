@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import Sidebar from "./pages/Sidebar";
 import ManageCourses from "./pages/ManageCourses";
 import ManageStudents from "./pages/ManageStudents";
+import ManageTeachingStaff from "./pages/ManageTeachingStaff";
 
 function App() {
     return (
@@ -26,7 +27,7 @@ function App() {
                     <Route path="manage-places" element={<h1>Manage Places</h1>} />
                     <Route path="manage-students" element={<ManageStudents />} />
                     <Route path="manage-courses" element={<ManageCourses />} />
-                    <Route path="manage-teaching-staff" element={<h1>Manage Teaching Staff</h1>} />
+                    <Route path="manage-teaching-staff" element={<ManageTeachingStaff />} />
                 </Route>
 
                 {/* public routes */}
