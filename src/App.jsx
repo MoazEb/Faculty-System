@@ -10,6 +10,7 @@ import ManageCourses from "./pages/ManageCourses";
 import ManageStudents from "./pages/ManageStudents";
 import ManageTeachingStaff from "./pages/ManageTeachingStaff";
 import ManageTeachingPlaces from "./pages/ManageTeachingPlaces";
+import TimeTable from "./components/TimeTable/TimeTable";
 
 function App() {
     return (
@@ -24,7 +25,7 @@ function App() {
                     }
                 >
                     <Route path="explore" element={<h1>Explore</h1>} />
-                    <Route path="manage-timetables" element={<h1>Manage Timetables</h1>} />
+                    <Route path="manage-timetables" element={<TimeTable />} />
                     <Route path="manage-places" element={<ManageTeachingPlaces />} />
                     <Route path="manage-students" element={<ManageStudents />} />
                     <Route path="manage-courses" element={<ManageCourses />} />

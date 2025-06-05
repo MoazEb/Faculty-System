@@ -1,5 +1,5 @@
 import React from "react";
-import { FiMenu } from "react-icons/fi";
+import { ListIcon } from "@phosphor-icons/react";
 import useSidebarStore from "../../stores/useSidebarStore";
 
 export default function MobileNavToggle() {
@@ -12,7 +12,7 @@ export default function MobileNavToggle() {
                 onClick={() => toggle()}
             >
                 <span className="sr-only">Open sidebar</span>
-                <FiMenu className="h-6 w-6" aria-hidden="true" />
+                <ListIcon className="h-6 w-6" aria-hidden="true" />
             </button>
         </div>
     );

@@ -8,16 +8,16 @@
     --color-secondary: #6a4aaa;
     --color-primary-dark: #212121;
     --color-secondary-dark: #303030;
-    --color-tertiary-dark:#171717;
+    --color-tertiary-dark: #171717;
     --color-primary-light: #f5f5f0;
 }
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 body {
     font-family: var(--font-poppins);
 }
 
-/* In your global CSS file */
 .ReactModal__Overlay {
     background-color: rgba(0, 0, 0, 0.5) !important;
     z-index: 50;
