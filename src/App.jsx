@@ -38,7 +38,16 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
-            <Toaster />
+            <Toaster
+                toastOptions={{
+                    success: {
+                        duration: 4000,
+                    },
+                    error: {
+                        duration: 4000,
+                    },
+                }}
+            />
         </>
     );
 }

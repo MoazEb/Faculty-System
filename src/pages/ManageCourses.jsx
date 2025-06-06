@@ -6,6 +6,7 @@ import DeleteConfirmationModal from "../components/Courses/DeleteConfirmationMod
 import Spinner from "../components/common/Spinner";
 import AddCourseModal from "../components/Courses/AddCourseModal";
 import CourseControls from "../components/Courses/CourseControls";
+import ManageDependenciesModal from "../components/Courses/ManageDependenciesModal";
 
 const ManageCourses = () => {
     const { courses, isLoading, getCourses, deleteCourse: deleteCourseFromStore } = useCoursesStore();
@@ -18,6 +19,9 @@ const ManageCourses = () => {
     const [selectedSemester, setSelectedSemester] = useState("");
     const [page, setPage] = useState(0);
     const [filters, setFilters] = useState({ level: "", semester: "" });
+
+    const [isDependenciesModalOpen, setIsDependenciesModalOpen] = useState(false);
+    const [courseForDependencies, setCourseForDependencies] = useState(null);
 
     useEffect(() => {
         getCourses();
@@ -54,10 +58,19 @@ const ManageCourses = () => {
             ...prevFilters,
             [filterName]: value,
         }));
-        // value => level
         filterName === "level" && setSelectedLevel(value);
         filterName === "level" && value !== "" && getCourses(page, value);
         filterName === "semester" && setSelectedSemester(value);
+    };
+
+    const handleOpenManageDependenciesModal = (course) => {
+        setCourseForDependencies(course);
+        setIsDependenciesModalOpen(true);
+    };
+
+    const handleCloseManageDependenciesModal = () => {
+        setIsDependenciesModalOpen(false);
+        setCourseForDependencies(null);
     };
 
     const filteredCourses = courses.filter((course) => {
@@ -99,6 +112,7 @@ const ManageCourses = () => {
                                 course={course}
                                 onEdit={() => handleEditClick(course)}
                                 onDelete={() => handleDeleteClick(course)}
+                                onManageDependencies={() => handleOpenManageDependenciesModal(course)}
                             />
                         ))}
                     </div>
@@ -139,6 +153,14 @@ const ManageCourses = () => {
                     }}
                     selectedLevel={selectedLevel}
                     selectedSemester={selectedSemester}
+                />
+            )}
+
+            {isDependenciesModalOpen && courseForDependencies && (
+                <ManageDependenciesModal
+                    course={courseForDependencies}
+                    isOpen={isDependenciesModalOpen}
+                    onClose={handleCloseManageDependenciesModal}
                 />
             )}
         </div>
