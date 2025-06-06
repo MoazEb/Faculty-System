@@ -25,3 +25,8 @@ export const addTeachingPlace = async (newPlaceData) => await api.post('/Teachin
 export const getTeachingPlaces = async () => await api.get('/TeachingPlaces?page=0')
 export const updateTeachingPlace = async (placeId, updatedData) => await api.put(`/TeachingPlaces/${placeId}`, updatedData)
 export const deleteTeachingPlace = async (id) => await api.delete('/TeachingPlaces', { data: [id] });
+
+// Course Dependencies
+export const getCourseDependencies = async (courseId) => await api.get(`/Courses/${courseId}/Dependencies`)
+export const addCourseDependency = async (courseId, coursesId) => await api.post(`/Courses/${courseId}/Dependencies`, { coursesId })
+export const deleteCourseDependency = async (courseId, coursesId) => await api.delete(`/Courses/${courseId}/Dependencies`, { data: { coursesId } })

@@ -1,7 +1,7 @@
 import React from "react";
-import { TrashIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { TrashIcon, PencilSimpleIcon, ShareNetworkIcon } from "@phosphor-icons/react";
 
-export default function MobileCard({ course, handleEdit, handleDelete }) {
+export default function MobileCard({ course, handleEdit, handleDelete, handleManageDependencies }) {
     return (
         <div className="bg-white dark:bg-secondary-dark rounded-xl border border-gray-200 dark:border-neutral-600 hover:shadow-lg transition-all duration-300 overflow-hidden lg:hidden">
             {/* Header */}
@@ -21,6 +21,13 @@ export default function MobileCard({ course, handleEdit, handleDelete }) {
                             title="Edit Course"
                         >
                             <PencilSimpleIcon size={18} />
+                        </button>
+                        <button
+                            onClick={() => handleManageDependencies(course)}
+                            className="p-2 text-green-600 bg-green-100/70 hover:bg-green-200 dark:bg-gray-100/5 dark:hover:bg-gray-100/20 hover:text-green-600 rounded-lg transition-all duration-200 cursor-pointer"
+                            title="Manage Dependencies"
+                        >
+                            <ShareNetworkIcon size={18} />
                         </button>
                         <button
                             onClick={handleDelete}
