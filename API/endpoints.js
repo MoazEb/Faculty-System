@@ -42,3 +42,6 @@ export const addTeachingStaffSchedules = async (username, schedules) => await ap
 
 export const updateSchedule = async (scheduleId, scheduleData) => await api.put(`/Shedules/${scheduleId}`, scheduleData);
 export const deleteSchedules = async (scheduleIdsList) => await api.delete('/Shedules', { data: scheduleIdsList });
+
+// Statistics
+export const getStatistics = async () => await api.get('/Statistics');
