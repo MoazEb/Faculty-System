@@ -11,6 +11,7 @@ import ManageStudents from "./pages/ManageStudents";
 import ManageTeachingStaff from "./pages/ManageTeachingStaff";
 import ManageTeachingPlaces from "./pages/ManageTeachingPlaces";
 import TimeTable from "./components/TimeTable/TimeTable";
+import ManageSchedules from "./pages/ManageSchedules";
 
 function App() {
     return (
@@ -30,6 +31,7 @@ function App() {
                     <Route path="manage-students" element={<ManageStudents />} />
                     <Route path="manage-courses" element={<ManageCourses />} />
                     <Route path="manage-teaching-staff" element={<ManageTeachingStaff />} />
+                    <Route path="manage-schedules" element={<ManageSchedules />} />
                 </Route>
 
                 {/* public routes */}

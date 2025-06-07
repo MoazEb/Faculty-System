@@ -1,4 +1,4 @@
-import { HouseIcon, CalendarIcon, BookIcon, UsersIcon, BriefcaseIcon, ChalkboardTeacherIcon } from "@phosphor-icons/react";
+import { HouseIcon, CalendarIcon, BookIcon, UsersIcon, BriefcaseIcon, ChalkboardTeacherIcon, CalendarCheckIcon } from "@phosphor-icons/react";
 
 export const adminNavigation = [
     { name: "Home", href: "/", icon: HouseIcon },
@@ -7,6 +7,7 @@ export const adminNavigation = [
     { name: "Manage Students", href: "/manage-students", icon: UsersIcon },
     { name: "Manage Teaching Staff", href: "/manage-teaching-staff", icon: ChalkboardTeacherIcon },
     { name: "Manage Teaching Places", href: "/manage-places", icon: BriefcaseIcon },
+    { name: "Manage Schedules", href: "/manage-schedules", icon: CalendarCheckIcon },
 ];
 
 export const teachingStaffNavigation = [
