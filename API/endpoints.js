@@ -30,3 +30,15 @@ export const deleteTeachingPlace = async (id) => await api.delete('/TeachingPlac
 export const getCourseDependencies = async (courseId) => await api.get(`/Courses/${courseId}/Dependencies`)
 export const addCourseDependency = async (courseId, coursesId) => await api.post(`/Courses/${courseId}/Dependencies`, { coursesId })
 export const deleteCourseDependency = async (courseId, coursesId) => await api.delete(`/Courses/${courseId}/Dependencies`, { data: { coursesId } })
+
+
+// Schedules
+
+export const getTeachingPlaceSchedules = async (placeId) => await api.get(`/TeachingPlaces/${placeId}/Schedules`)
+export const addTeachingPlaceSchedules = async (placeId, schedules) => await api.post(`/TeachingPlaces/${placeId}/Schedules`, schedules)
+
+export const getTeachingStaffSchedules = async (username) => await api.get(`/Users/${username}/Schedules`)
+export const addTeachingStaffSchedules = async (username, schedules) => await api.post(`/Users/${username}/Schedules`, schedules)
+
+export const updateSchedule = async (scheduleId, scheduleData) => await api.put(`/Shedules/${scheduleId}`, scheduleData);
+export const deleteSchedules = async (scheduleIdsList) => await api.delete('/Shedules', { data: scheduleIdsList });

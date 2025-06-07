@@ -50,11 +50,34 @@ body {
     }
 }
 
-/* @media (prefers-color-scheme: dark) {
-    body {
-        background-color: var(--color-primary-dark);
+@keyframes fade-in-scale {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
     }
-    .ReactModal__Content {
-        background-color: var(--color-primary-dark) !important;
+
+    to {
+        transform: scale(1);
+        opacity: 1;
     }
-} */
+}
+
+@keyframes fade-out-scale {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+}
+
+.animate-fade-in-scale {
+    animation: fade-in-scale 0.3s ease-in-out forwards;
+}
+
+.animate-fade-out-scale {
+    animation: fade-out-scale 0.3s ease-in-out forwards;
+}
