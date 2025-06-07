@@ -12,7 +12,7 @@ import ManageTeachingStaff from "./pages/ManageTeachingStaff";
 import ManageTeachingPlaces from "./pages/ManageTeachingPlaces";
 import TimeTable from "./components/TimeTable/TimeTable";
 import ManageSchedules from "./pages/ManageSchedules";
-
+import Statistics from "./pages/Statistics";
 function App() {
     return (
         <>
@@ -25,6 +25,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 >
+                    <Route index element={<Statistics />} />
                     <Route path="explore" element={<h1>Explore</h1>} />
                     <Route path="manage-timetables" element={<TimeTable />} />
                     <Route path="manage-places" element={<ManageTeachingPlaces />} />
