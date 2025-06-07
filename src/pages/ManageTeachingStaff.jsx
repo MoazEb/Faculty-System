@@ -13,7 +13,8 @@ export default function ManageTeachingStaff() {
         isLoading, 
         getTeachingStaff, 
         deleteTeachingStaff,
-        getStaffTypeLabel 
+        getStaffTypeLabel,
+        selectedLevel 
     } = useTeachingStaffStore();
     
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -21,7 +22,6 @@ export default function ManageTeachingStaff() {
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedLevel, setSelectedLevel] = useState(6); // Default to Teaching Assistant
     const [page, setPage] = useState(0);
     const [filters, setFilters] = useState({ level: "6", gender: "" });
 
@@ -41,7 +41,7 @@ export default function ManageTeachingStaff() {
 
     const confirmDeleteStaff = async () => {
         if (selectedStaff) {
-            await deleteTeachingStaff([selectedStaff.userName], selectedStaff.level);
+            await deleteTeachingStaff([selectedStaff.userName]);
             setIsDeleteModalOpen(false);
             setSelectedStaff(null);
         }
@@ -63,7 +63,6 @@ export default function ManageTeachingStaff() {
         
         if (filterName === "level" && value !== "") {
             const levelValue = parseInt(value, 10);
-            setSelectedLevel(levelValue);
             getTeachingStaff(page, levelValue);
         }
     };
