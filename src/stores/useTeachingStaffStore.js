@@ -8,10 +8,11 @@ export const useTeachingStaffStore = create(
         (set, get) => ({
             teachingStaff: [],
             isLoading: false,
+            selectedLevel: 6,
             setTeachingStaff: (teachingStaff) => set({ teachingStaff }),
             getTeachingStaff: async (page = 0, level = 6) => {
                 try {
-                    set({ isLoading: true });
+                    set({ isLoading: true, selectedLevel: level });
                     const response = await fetchTeachingStaffApi(page, level);
                     set({ teachingStaff: response.data.results });
                 } catch (error) {
@@ -27,7 +28,7 @@ export const useTeachingStaffStore = create(
                     // Ensure role is set to 1 for teaching staff
                     const staffData = { ...newTeachingStaffData, role: 1 };
                     await addTeachingStaffApi(staffData);
-                    await get().getTeachingStaff(0, staffData.level);
+                    await get().getTeachingStaff(0, get().selectedLevel);
                     toast.success("Teaching staff added successfully!");
                 } catch (error) {
                     toast.error(error.response?.data?.errors?.userDetails || "Error adding teaching staff");
@@ -43,7 +44,7 @@ export const useTeachingStaffStore = create(
                     // Ensure role is maintained as 1 for teaching staff
                     const staffData = { ...updatedData, role: 1 };
                     await updateTeachingStaffApi(username, staffData);
-                    await get().getTeachingStaff(0, staffData.level);
+                    await get().getTeachingStaff(0, get().selectedLevel);
                     toast.success("Teaching staff updated successfully!");
                 } catch (error) {
                     toast.error(error.response?.data?.detail || "Error updating teaching staff");
@@ -53,11 +54,11 @@ export const useTeachingStaffStore = create(
                     set({ isLoading: false });
                 }
             },
-            deleteTeachingStaff: async (usernamesList, level) => {
+            deleteTeachingStaff: async (usernamesList) => {
                 try {
                     set({ isLoading: true });
                     await deleteTeachingStaffApi(usernamesList);
-                    await get().getTeachingStaff(0, level);
+                    await get().getTeachingStaff(0, get().selectedLevel);
                     toast.success("Teaching staff deleted successfully!");
                 } catch (error) {
                     toast.error(error.response?.data?.detail || "Error deleting teaching staff");
