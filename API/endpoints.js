@@ -45,3 +45,9 @@ export const deleteSchedules = async (scheduleIdsList) => await api.delete('/She
 
 // Statistics
 export const getStatistics = async () => await api.get('/Statistics');
+
+// staff and student schedules
+// export const getStaffAndStudentSchedules = async (level) => await api.get(`/TimeTables?level=${level}`);
+
+// profile
+export const getProfile = async (username) => await api.get(`/Users/${username}`);

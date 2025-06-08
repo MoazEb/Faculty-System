@@ -13,6 +13,8 @@ import ManageTeachingPlaces from "./pages/ManageTeachingPlaces";
 import TimeTable from "./components/TimeTable/TimeTable";
 import ManageSchedules from "./pages/ManageSchedules";
 import Statistics from "./pages/Statistics";
+import Profile from "./pages/Profile";
+
 function App() {
     return (
         <>
@@ -20,7 +22,7 @@ function App() {
                 <Route
                     path="/"
                     element={
-                        <ProtectedRoute allowedRoles={["Admin"]}>
+                        <ProtectedRoute allowedRoles={["Admin","Student"]}>
                             <Sidebar />
                         </ProtectedRoute>
                     }
@@ -33,6 +35,8 @@ function App() {
                     <Route path="manage-courses" element={<ManageCourses />} />
                     <Route path="manage-teaching-staff" element={<ManageTeachingStaff />} />
                     <Route path="manage-schedules" element={<ManageSchedules />} />
+                    <Route path="timetables" element={<TimeTable />} />
+                    <Route path="profile" element={<Profile />} />
                 </Route>
 
                 {/* public routes */}
