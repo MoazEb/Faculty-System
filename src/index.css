@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
 
 /* add here any tailwind custom class you want */
 @theme {
@@ -48,36 +54,4 @@ body {
         width: calc(100vw - 30px) !important;
         margin: 0 !important;
     }
-}
-
-@keyframes fade-in-scale {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes fade-out-scale {
-    from {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    to {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-}
-
-.animate-fade-in-scale {
-    animation: fade-in-scale 0.3s ease-in-out forwards;
-}
-
-.animate-fade-out-scale {
-    animation: fade-out-scale 0.3s ease-in-out forwards;
 }

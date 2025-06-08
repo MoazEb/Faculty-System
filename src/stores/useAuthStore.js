@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 const useAuthStore = create((set, get) => ({
     isAuthenticated: !!Cookies.get('access_token'),
     role: Cookies.get('access_token') ? jwtDecode(Cookies.get('access_token')).role : null,
+    fullId: Cookies.get('id') || null,
     isLoading: false,
 
     login: async (credentials) => {
@@ -31,13 +32,14 @@ const useAuthStore = create((set, get) => ({
             const decoded_token = jwtDecode(token);
             const { role, nameid: fullId } = decoded_token;
 
-            Cookies.set('fullId', fullId, cookieOptions);
+            Cookies.set('id', fullId, cookieOptions);
 
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
             set({
                 isAuthenticated: true,
                 role,
+                fullId,
                 isLoading: false,
             });
 
@@ -56,13 +58,14 @@ const useAuthStore = create((set, get) => ({
         try {
             Cookies.remove('access_token');
             Cookies.remove('refresh_token');
-            Cookies.remove('fullId');
+            Cookies.remove('id');
 
             delete api.defaults.headers.common['Authorization'];
 
             set({
                 isAuthenticated: false,
                 role: null,
+                fullId: null,
                 isLoading: false,
             });
             window.location.href = '/login';

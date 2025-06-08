@@ -1,4 +1,4 @@
-import { HouseIcon, CalendarIcon, BookIcon, UsersIcon, BriefcaseIcon, ChalkboardTeacherIcon, CalendarCheckIcon } from "@phosphor-icons/react";
+import { HouseIcon, CalendarIcon, BookIcon, UsersIcon, BriefcaseIcon, ChalkboardTeacherIcon, CalendarCheckIcon, UserIcon } from "@phosphor-icons/react";
 
 export const adminNavigation = [
     { name: "Home", href: "/", icon: HouseIcon },
@@ -8,14 +8,18 @@ export const adminNavigation = [
     { name: "Manage Teaching Staff", href: "/manage-teaching-staff", icon: ChalkboardTeacherIcon },
     { name: "Manage Teaching Places", href: "/manage-places", icon: BriefcaseIcon },
     { name: "Manage Schedules", href: "/manage-schedules", icon: CalendarCheckIcon },
+    { name: "Profile", href: "/profile", icon: UserIcon }
+
 ];
 
 export const teachingStaffNavigation = [
-    { name: "Home", href: "/", icon: HouseIcon },
+    // { name: "Home", href: "/", icon: HouseIcon },
     { name: "View Timetable", href: "/timetables", icon: CalendarIcon },
+    { name: "Profile", href: "/profile", icon: UserIcon }
 ];
 
 export const studentsNavigation = [
-    { name: "Home", href: "/", icon: HouseIcon },
+    // { name: "Home", href: "/", icon: HouseIcon },
     { name: "View Timetable", href: "/timetables", icon: CalendarIcon },
+    { name: "Profile", href: "/profile", icon: UserIcon }
 ];
