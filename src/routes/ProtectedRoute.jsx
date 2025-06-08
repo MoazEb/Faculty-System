@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, Outlet } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import NotAllowed from "../pages/NotAllowed";
@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         const userRole = decodedToken.role;
 
         if (allowedRoles.includes(userRole)) {
-            return children;
+            return children ? children : <Outlet />;
         } else {
             return <NotAllowed />;
         }
