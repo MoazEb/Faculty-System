@@ -9,23 +9,35 @@ import CourseControls from "../components/Courses/CourseControls";
 import ManageDependenciesModal from "../components/Courses/ManageDependenciesModal";
 
 const ManageCourses = () => {
-    const { courses, isLoading, getCourses, deleteCourse: deleteCourseFromStore } = useCoursesStore();
+    const { courses, isLoading, getCourses, deleteCourse: deleteCourseFromStore, filters, setFilters } = useCoursesStore();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedLevel, setSelectedLevel] = useState("");
-    const [selectedSemester, setSelectedSemester] = useState("");
-    const [page, setPage] = useState(0);
-    const [filters, setFilters] = useState({ level: "", semester: "" });
+    const [searchTerm, setSearchTerm] = useState(filters.name || "");
 
     const [isDependenciesModalOpen, setIsDependenciesModalOpen] = useState(false);
     const [courseForDependencies, setCourseForDependencies] = useState(null);
 
     useEffect(() => {
         getCourses();
-    }, []);
+    }, [getCourses]);
+
+    useEffect(() => {
+        setSearchTerm(filters.name || "");
+    }, [filters.name]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (searchTerm !== filters.name) {
+                setFilters({ name: searchTerm });
+            }
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm, filters.name, setFilters]);
 
     const handleEditClick = (course) => {
         setSelectedCourse(course);
@@ -54,13 +66,7 @@ const ManageCourses = () => {
     };
 
     const handleFilterChange = (filterName, value) => {
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            [filterName]: value,
-        }));
-        filterName === "level" && setSelectedLevel(value);
-        filterName === "level" && value !== "" && getCourses(page, value);
-        filterName === "semester" && setSelectedSemester(value);
+        setFilters({ [filterName]: value });
     };
 
     const handleOpenManageDependenciesModal = (course) => {
@@ -72,15 +78,6 @@ const ManageCourses = () => {
         setIsDependenciesModalOpen(false);
         setCourseForDependencies(null);
     };
-
-    const filteredCourses = courses.filter((course) => {
-        return (
-            (course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (course.code && course.code.toLowerCase().includes(searchTerm.toLowerCase()))) &&
-            (filters.level ? course.level === parseInt(filters.level) : true) &&
-            (filters.semester ? course.semester === parseInt(filters.semester) : true)
-        );
-    });
 
     return (
         <div className="p-4 md:p-6 lg:p-8 dark:bg-primary-dark">
@@ -104,9 +101,9 @@ const ManageCourses = () => {
                     <div className="flex items-center justify-center h-48">
                         <Spinner size={8} color="text-primary" />
                     </div>
-                ) : filteredCourses.length > 0 ? (
+                ) : courses.length > 0 ? (
                     <div className="flex flex-col gap-4 lg:gap-0">
-                        {filteredCourses.map((course) => (
+                        {courses.map((course) => (
                             <Card
                                 key={course.id}
                                 course={course}
@@ -151,8 +148,8 @@ const ManageCourses = () => {
                     onClose={() => {
                         setIsAddModalOpen(false);
                     }}
-                    selectedLevel={selectedLevel}
-                    selectedSemester={selectedSemester}
+                    selectedLevel={filters.level}
+                    selectedSemester={filters.semester}
                 />
             )}
 

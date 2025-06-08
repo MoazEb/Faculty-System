@@ -8,19 +8,32 @@ import DeleteConfirmationModal from "../components/Students/DeleteConfirmationMo
 import EditStudentModal from "../components/Students/EditStudentModal";
 
 export default function ManageStudents() {
-    const { students, isLoading, getStudents, deleteStudent: deleteStudentFromStore } = useStudentsStore();
+    const { students, isLoading, getStudents, deleteStudent: deleteStudentFromStore, filters, setFilters } = useStudentsStore();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedLevel, setSelectedLevel] = useState("");
-    const [page, setPage] = useState(0);
-    const [filters, setFilters] = useState({ level: "", gender: "" });
+    const [searchTerm, setSearchTerm] = useState(filters.name || "");
 
     useEffect(() => {
         getStudents();
-    }, []);
+    }, [getStudents]);
+
+    useEffect(() => {
+        setSearchTerm(filters.name || "");
+    }, [filters.name]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (searchTerm !== filters.name) {
+                setFilters({ name: searchTerm });
+            }
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm, filters.name, setFilters]);
 
     const handleEditClick = (student) => {
         setSelectedStudent(student);
@@ -34,7 +47,7 @@ export default function ManageStudents() {
 
     const confirmDeleteStudent = async () => {
         if (selectedStudent) {
-            await deleteStudentFromStore([selectedStudent.userName], selectedStudent.level);
+            await deleteStudentFromStore([selectedStudent.userName]);
             setIsDeleteModalOpen(false);
             setSelectedStudent(null);
         }
@@ -49,24 +62,8 @@ export default function ManageStudents() {
     };
 
     const handleFilterChange = (filterName, value) => {
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            [filterName]: value,
-        }));
-        // value => level
-        filterName === "level" && setSelectedLevel(parseInt(value, 10));
-        filterName === "level" && value !== "" && getStudents(page, value);
+        setFilters({ [filterName]: value });
     };
-
-    const filteredStudents = students.filter((student) => {
-        return (
-            (student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (student.userName && student.userName.toLowerCase().includes(searchTerm.toLowerCase()))) &&
-            (filters.level ? student.level === parseInt(filters.level) : true) &&
-            (filters.gender ? student.gender === parseInt(filters.gender) : true)
-        );
-    });
 
     return (
         <div className="p-4 md:p-6 lg:p-8 dark:bg-primary-dark">
@@ -93,9 +90,9 @@ export default function ManageStudents() {
                     <div className="flex items-center justify-center h-48">
                         <Spinner size={8} color="text-primary" />
                     </div>
-                ) : filteredStudents.length > 0 ? (
+                ) : students.length > 0 ? (
                     <div className="flex flex-col gap-4 lg:gap-0">
-                        {filteredStudents.map((student) => (
+                        {students.map((student) => (
                             <Card
                                 key={student.userName}
                                 student={student}
@@ -139,7 +136,7 @@ export default function ManageStudents() {
                     onClose={() => {
                         setIsAddModalOpen(false);
                     }}
-                    selectedLevel={selectedLevel}
+                    selectedLevel={filters.level}
                     selectedGender={filters.gender}
                 />
             )}

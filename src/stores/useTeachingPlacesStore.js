@@ -8,11 +8,20 @@ export const useTeachingPlacesStore = create(
         (set, get) => ({
             teachingPlaces: [],
             isLoading: false,
+            filters: { type: "", name: "" }, // Default filters
+
             setTeachingPlaces: (teachingPlaces) => set({ teachingPlaces }),
+
             getTeachingPlaces: async () => {
+                const { filters } = get();
                 try {
                     set({ isLoading: true });
-                    const response = await fetchTeachingPlacesApi();
+                    const params = {
+                        page: 0,
+                        type: filters.type || "",
+                        name: filters.name || "",
+                    };
+                    const response = await fetchTeachingPlacesApi(params);
                     set({ teachingPlaces: response.data.results });
                 } catch (error) {
                     toast.error(error.response?.data?.detail || "Error fetching teaching places");
@@ -21,6 +30,17 @@ export const useTeachingPlacesStore = create(
                     set({ isLoading: false });
                 }
             },
+
+            setFilters: (newFilters) => {
+                const oldFilters = get().filters;
+                const updatedFilters = { ...oldFilters, ...newFilters };
+
+                if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
+                    set({ filters: updatedFilters });
+                    get().getTeachingPlaces();
+                }
+            },
+
             addTeachingPlace: async (newPlaceData) => {
                 try {
                     set({ isLoading: true });
@@ -35,6 +55,7 @@ export const useTeachingPlacesStore = create(
                     set({ isLoading: false });
                 }
             },
+
             updateTeachingPlace: async (placeId, updatedData) => {
                 try {
                     set({ isLoading: true });
@@ -49,6 +70,7 @@ export const useTeachingPlacesStore = create(
                     set({ isLoading: false });
                 }
             },
+
             deleteTeachingPlace: async (placeId) => {
                 try {
                     set({ isLoading: true });
@@ -63,13 +85,14 @@ export const useTeachingPlacesStore = create(
                     set({ isLoading: false });
                 }
             },
-            // Helper function to get place type label based on type value
+
             getPlaceTypeLabel: (type) => {
                 return type === 0 ? "Hall" : type === 1 ? "Lab" : "Unknown";
             }
         }),
         {
             name: 'teaching-places-storage',
+            partialize: (state) => ({ filters: state.filters }),
         }
     )
 );

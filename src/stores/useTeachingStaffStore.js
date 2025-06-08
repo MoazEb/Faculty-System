@@ -8,12 +8,21 @@ export const useTeachingStaffStore = create(
         (set, get) => ({
             teachingStaff: [],
             isLoading: false,
-            selectedLevel: 6,
+            filters: { level: 6, gender: "", name: "" }, // Default filters, 6 for Teaching Assistant
+
             setTeachingStaff: (teachingStaff) => set({ teachingStaff }),
-            getTeachingStaff: async (page = 0, level = 6) => {
+
+            getTeachingStaff: async () => {
+                const { filters } = get();
                 try {
-                    set({ isLoading: true, selectedLevel: level });
-                    const response = await fetchTeachingStaffApi(page, level);
+                    set({ isLoading: true });
+                    const params = {
+                        page: 0,
+                        level: filters.level || 6, // API requires level
+                        gender: filters.gender || "",
+                        name: filters.name || "",
+                    };
+                    const response = await fetchTeachingStaffApi(params);
                     set({ teachingStaff: response.data.results });
                 } catch (error) {
                     toast.error(error.response?.data?.detail || "Error fetching teaching staff");
@@ -22,13 +31,24 @@ export const useTeachingStaffStore = create(
                     set({ isLoading: false });
                 }
             },
+
+            setFilters: (newFilters) => {
+                const oldFilters = get().filters;
+                const updatedFilters = { ...oldFilters, ...newFilters };
+
+                if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
+                    set({ filters: updatedFilters });
+                    get().getTeachingStaff();
+                }
+            },
+
             addTeachingStaff: async (newTeachingStaffData) => {
                 try {
                     set({ isLoading: true });
-                    // Ensure role is set to 1 for teaching staff
                     const staffData = { ...newTeachingStaffData, role: 1 };
                     await addTeachingStaffApi(staffData);
-                    await get().getTeachingStaff(0, get().selectedLevel);
+                    // After adding, filter by the new staff's level to show them
+                    get().setFilters({ level: staffData.level, gender: "", name: "" });
                     toast.success("Teaching staff added successfully!");
                 } catch (error) {
                     toast.error(error.response?.data?.errors?.userDetails || "Error adding teaching staff");
@@ -38,13 +58,13 @@ export const useTeachingStaffStore = create(
                     set({ isLoading: false });
                 }
             },
+
             updateTeachingStaff: async (username, updatedData) => {
                 try {
                     set({ isLoading: true });
-                    // Ensure role is maintained as 1 for teaching staff
                     const staffData = { ...updatedData, role: 1 };
                     await updateTeachingStaffApi(username, staffData);
-                    await get().getTeachingStaff(0, get().selectedLevel);
+                    await get().getTeachingStaff(); // Refetch with current filters
                     toast.success("Teaching staff updated successfully!");
                 } catch (error) {
                     toast.error(error.response?.data?.detail || "Error updating teaching staff");
@@ -54,11 +74,12 @@ export const useTeachingStaffStore = create(
                     set({ isLoading: false });
                 }
             },
+
             deleteTeachingStaff: async (usernamesList) => {
                 try {
                     set({ isLoading: true });
                     await deleteTeachingStaffApi(usernamesList);
-                    await get().getTeachingStaff(0, get().selectedLevel);
+                    await get().getTeachingStaff(); // Refetch with current filters
                     toast.success("Teaching staff deleted successfully!");
                 } catch (error) {
                     toast.error(error.response?.data?.detail || "Error deleting teaching staff");
@@ -68,13 +89,14 @@ export const useTeachingStaffStore = create(
                     set({ isLoading: false });
                 }
             },
-            // Helper function to get staff type label based on level
+
             getStaffTypeLabel: (level) => {
-                return level === 6 ? "Teaching Assistant" : level === 7 ? "Teaching Lecturer" : "Unknown";
+                return level === 6 ? "Assistant" : level === 7 ? "Lecturer" : "Unknown";
             }
         }),
         {
             name: 'teaching-staff-storage',
+            partialize: (state) => ({ filters: state.filters }),
         }
     )
 );
