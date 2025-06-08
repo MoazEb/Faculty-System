@@ -8,11 +8,21 @@ export const useStudentsStore = create(
         (set, get) => ({
             students: [],
             isLoading: false,
+            filters: { level: 1, gender: "", name: "" }, // Default filters
+
             setStudents: (students) => set({ students }),
-            getStudents: async (page = 0, level = 1) => {
+
+            getStudents: async () => {
+                const { filters } = get();
                 try {
                     set({ isLoading: true });
-                    const response = await fetchStudentsApi(page, level);
+                    const params = {
+                        page: 0,
+                        level: filters.level || 1, // API requires level
+                        gender: filters.gender || "",
+                        name: filters.name || "",
+                    };
+                    const response = await fetchStudentsApi(params);
                     set({ students: response.data.results });
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error fetching students");
@@ -21,11 +31,23 @@ export const useStudentsStore = create(
                     set({ isLoading: false });
                 }
             },
+
+            setFilters: (newFilters) => {
+                const oldFilters = get().filters;
+                const updatedFilters = { ...oldFilters, ...newFilters };
+
+                if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
+                    set({ filters: updatedFilters });
+                    get().getStudents();
+                }
+            },
+
             addStudent: async (newStudentData) => {
                 try {
                     set({ isLoading: true });
                     await addStudentApi(newStudentData);
-                    await get().getStudents(0, newStudentData.level);
+                    // After adding, filter by the new student's level to show them
+                    get().setFilters({ level: newStudentData.level, gender: "", name: "" });
                     toast.success("Student added successfully!");
                 } catch (error) {
                     toast.error(error.response.data.errors.userDetails || "Error adding student");
@@ -35,11 +57,12 @@ export const useStudentsStore = create(
                     set({ isLoading: false });
                 }
             },
+
             updateStudent: async (username, updatedData) => {
                 try {
                     set({ isLoading: true });
                     await updateStudentApi(username, updatedData);
-                    await get().getStudents(0, updatedData.level);
+                    await get().getStudents(); // Refetch with current filters
                     toast.success("Student updated successfully!");
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error updating student");
@@ -49,11 +72,12 @@ export const useStudentsStore = create(
                     set({ isLoading: false });
                 }
             },
-            deleteStudent: async (usernamesList, level) => {
+
+            deleteStudent: async (usernamesList) => {
                 try {
                     set({ isLoading: true });
                     await deleteStudentApi(usernamesList);
-                    await get().getStudents(0, level);
+                    await get().getStudents(); // Refetch with current filters
                     toast.success("Student deleted successfully!");
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error deleting student");
@@ -66,6 +90,7 @@ export const useStudentsStore = create(
         }),
         {
             name: 'students-storage',
+            partialize: (state) => ({ filters: state.filters }),
         }
     )
 );

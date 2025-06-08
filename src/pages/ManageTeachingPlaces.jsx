@@ -8,17 +8,41 @@ import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import EditTeachingPlaceModal from "./EditTeachingPlaceModal";
 
 export default function ManageTeachingPlaces() {
-    const { teachingPlaces, isLoading, getTeachingPlaces, deleteTeachingPlace, getPlaceTypeLabel } = useTeachingPlacesStore();
+    const { 
+        teachingPlaces, 
+        isLoading, 
+        getTeachingPlaces, 
+        deleteTeachingPlace, 
+        getPlaceTypeLabel,
+        filters,
+        setFilters 
+    } = useTeachingPlacesStore();
+
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filters, setFilters] = useState({ type: "" });
+    const [searchTerm, setSearchTerm] = useState(filters.name || "");
 
     useEffect(() => {
         getTeachingPlaces();
-    }, []);
+    }, [getTeachingPlaces]);
+
+    useEffect(() => {
+        setSearchTerm(filters.name || "");
+    }, [filters.name]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (searchTerm !== filters.name) {
+                setFilters({ name: searchTerm });
+            }
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm, filters.name, setFilters]);
 
     const handleEditClick = (place) => {
         setSelectedPlace(place);
@@ -47,18 +71,8 @@ export default function ManageTeachingPlaces() {
     };
 
     const handleFilterChange = (filterName, value) => {
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            [filterName]: value,
-        }));
+        setFilters({ [filterName]: value });
     };
-
-    const filteredPlaces = teachingPlaces.filter((place) => {
-        return (
-            place.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (filters.type !== "" ? place.type === parseInt(filters.type) : true)
-        );
-    });
 
     return (
         <div className="p-4 md:p-6 lg:p-8 dark:bg-primary-dark">
@@ -84,9 +98,9 @@ export default function ManageTeachingPlaces() {
                     <div className="flex items-center justify-center h-48">
                         <Spinner size={8} color="text-primary" />
                     </div>
-                ) : filteredPlaces.length > 0 ? (
+                ) : teachingPlaces.length > 0 ? (
                     <div className="flex flex-col gap-4 lg:gap-0">
-                        {filteredPlaces.map((place) => (
+                        {teachingPlaces.map((place) => (
                             <Card
                                 key={place.id}
                                 place={place}
@@ -131,6 +145,7 @@ export default function ManageTeachingPlaces() {
                     onClose={() => {
                         setIsAddModalOpen(false);
                     }}
+                    selectedType={filters.type}
                 />
             )}
         </div>

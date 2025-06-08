@@ -8,11 +8,25 @@ export const useCoursesStore = create(
         (set, get) => ({
             courses: [],
             isLoading: false,
+            filters: { level: 1, semester: 0, name: "" },
+
             setCourses: (courses) => set({ courses }),
-            getCourses: async (page = 0, level = 1) => {
+
+            getCourses: async () => {
+                const { filters } = get();
                 try {
                     set({ isLoading: true });
-                    const response = await fetchCoursesApi(page, level);
+                    const params = {
+                        page: 0,
+                        level: filters.level || 1,
+                        name: filters.name || "",
+                    };
+
+                    if (filters.semester !== "") {
+                        params.semester = filters.semester;
+                    }
+
+                    const response = await fetchCoursesApi(params);
                     set({ courses: response.data.results });
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error fetching courses");
@@ -21,13 +35,22 @@ export const useCoursesStore = create(
                     set({ isLoading: false });
                 }
             },
+
+            setFilters: (newFilters) => {
+                const oldFilters = get().filters;
+                const updatedFilters = { ...oldFilters, ...newFilters };
+
+                if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
+                    set({ filters: updatedFilters });
+                    get().getCourses();
+                }
+            },
+
             addCourse: async (newCourseData) => {
-                console.log(newCourseData);
                 try {
                     set({ isLoading: true });
-                    const response = await addCourseApi(newCourseData);
-                    // set((state) => ({ courses: [...state.courses, response.data.results] }));
-                    await get().getCourses();
+                    await addCourseApi(newCourseData);
+                    get().setFilters({ level: newCourseData.level, semester: newCourseData.semester, name: "" });
                     toast.success("Course added successfully!");
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error adding course");
@@ -37,16 +60,12 @@ export const useCoursesStore = create(
                     set({ isLoading: false });
                 }
             },
+
             updateCourse: async (courseId, updatedData) => {
                 try {
                     set({ isLoading: true });
-                    const response = await updateCourseApi(courseId, updatedData);
-                    console.log(response.data);
-                    set((state) => ({
-                        courses: state.courses.map((course) =>
-                            course.id === courseId ? { ...course, ...response.data } : course
-                        ),
-                    }));
+                    await updateCourseApi(courseId, updatedData);
+                    await get().getCourses();
                     toast.success("Course updated successfully!");
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error updating course");
@@ -56,11 +75,12 @@ export const useCoursesStore = create(
                     set({ isLoading: false });
                 }
             },
+
             deleteCourse: async (id) => {
                 try {
                     set({ isLoading: true });
                     await deleteCourseApi(id);
-                    set((state) => ({ courses: state.courses.filter((course) => course.id !== id) }));
+                    await get().getCourses();
                     toast.success("Course deleted successfully!");
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error deleting course");
@@ -73,6 +93,7 @@ export const useCoursesStore = create(
         }),
         {
             name: 'courses-storage',
+            partialize: (state) => ({ filters: state.filters }),
         }
     )
 );

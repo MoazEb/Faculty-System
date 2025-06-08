@@ -14,20 +14,35 @@ export default function ManageTeachingStaff() {
         getTeachingStaff, 
         deleteTeachingStaff,
         getStaffTypeLabel,
-        selectedLevel 
+        filters,
+        setFilters 
     } = useTeachingStaffStore();
     
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [page, setPage] = useState(0);
-    const [filters, setFilters] = useState({ level: "6", gender: "" });
+    const [searchTerm, setSearchTerm] = useState(filters.name || "");
 
     useEffect(() => {
-        getTeachingStaff(0, 6); // Default to Teaching Assistant
-    }, []);
+        getTeachingStaff();
+    }, [getTeachingStaff]);
+
+    useEffect(() => {
+        setSearchTerm(filters.name || "");
+    }, [filters.name]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (searchTerm !== filters.name) {
+                setFilters({ name: searchTerm });
+            }
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm, filters.name, setFilters]);
 
     const handleEditClick = (staff) => {
         setSelectedStaff(staff);
@@ -56,26 +71,8 @@ export default function ManageTeachingStaff() {
     };
 
     const handleFilterChange = (filterName, value) => {
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            [filterName]: value,
-        }));
-        
-        if (filterName === "level" && value !== "") {
-            const levelValue = parseInt(value, 10);
-            getTeachingStaff(page, levelValue);
-        }
+        setFilters({ [filterName]: value });
     };
-
-    const filteredStaff = teachingStaff.filter((staff) => {
-        return (
-            (staff.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                staff.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (staff.userName && staff.userName.toLowerCase().includes(searchTerm.toLowerCase()))) &&
-            (filters.level ? staff.level === parseInt(filters.level) : true) &&
-            (filters.gender ? staff.gender === parseInt(filters.gender) : true)
-        );
-    });
 
     return (
         <div className="p-4 md:p-6 lg:p-8 dark:bg-primary-dark">
@@ -102,9 +99,9 @@ export default function ManageTeachingStaff() {
                     <div className="flex items-center justify-center h-48">
                         <Spinner size={8} color="text-primary" />
                     </div>
-                ) : filteredStaff.length > 0 ? (
+                ) : teachingStaff.length > 0 ? (
                     <div className="flex flex-col gap-4 lg:gap-0">
-                        {filteredStaff.map((staff) => (
+                        {teachingStaff.map((staff) => (
                             <Card
                                 key={staff.userName}
                                 staff={staff}
@@ -150,7 +147,7 @@ export default function ManageTeachingStaff() {
                     onClose={() => {
                         setIsAddModalOpen(false);
                     }}
-                    selectedLevel={selectedLevel}
+                    selectedLevel={filters.level}
                     selectedGender={filters.gender}
                 />
             )}

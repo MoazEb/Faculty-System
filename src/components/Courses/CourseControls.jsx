@@ -39,7 +39,7 @@ const CourseControls = ({ onAddCourse, onSearch, onFilterChange }) => {
                         className="pl-4 pr-8 py-3 lg:py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent w-full sm:w-40 appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
                         onChange={(e) => onFilterChange("semester", e.target.value)}
                     >
-                        <option value="">All Semesters</option>
+                        <option value="0">All Semesters</option>
                         <option value="1">Semester 1</option>
                         <option value="2">Semester 2</option>
                     </select>
