@@ -51,3 +51,6 @@ export const getStatistics = async () => await api.get('/Statistics');
 
 // profile
 export const getProfile = async (username) => await api.get(`/Users/${username}`);
+
+// my schedule
+export const getMySchedule = async (level) => await api.get(`/TimeTables?level=${level}`);

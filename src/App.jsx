@@ -12,37 +12,63 @@ import ManageTeachingStaff from "./pages/ManageTeachingStaff";
 import ManageTeachingPlaces from "./pages/ManageTeachingPlaces";
 import TimeTable from "./components/TimeTable/TimeTable";
 import ManageSchedules from "./pages/ManageSchedules";
-import Statistics from "./pages/Statistics";
 import Profile from "./pages/Profile";
+import TimeTableSchedule from "./pages/TimeTableSchedule";
+import Home from "./pages/Home";
 
 function App() {
     return (
         <>
             <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute allowedRoles={["Admin","Student"]}>
-                            <Sidebar />
-                        </ProtectedRoute>
-                    }
-                >
-                    <Route index element={<Statistics />} />
-                    <Route path="explore" element={<h1>Explore</h1>} />
-                    <Route path="manage-timetables" element={<TimeTable />} />
-                    <Route path="manage-places" element={<ManageTeachingPlaces />} />
-                    <Route path="manage-students" element={<ManageStudents />} />
-                    <Route path="manage-courses" element={<ManageCourses />} />
-                    <Route path="manage-teaching-staff" element={<ManageTeachingStaff />} />
-                    <Route path="manage-schedules" element={<ManageSchedules />} />
-                    <Route path="timetables" element={<TimeTable />} />
-                    <Route path="profile" element={<Profile />} />
-                </Route>
-
                 {/* public routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/SignUp" element={<SignupPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+                {/* protected routes */}
+                <Route
+                    element={
+                        <ProtectedRoute allowedRoles={["Admin", "Student", "TeachingStaff"]}>
+                            <Sidebar />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<Home />} />
+                    <Route
+                        element={
+                            <ProtectedRoute
+                                allowedRoles={["Admin"]}
+                            ></ProtectedRoute>
+                        }
+                    >
+                        <Route
+                            path="manage-timetables"
+                            element={<TimeTable />}
+                        />
+                        <Route
+                            path="manage-places"
+                            element={<ManageTeachingPlaces />}
+                        />
+                        <Route
+                            path="manage-students"
+                            element={<ManageStudents />}
+                        />
+                        <Route
+                            path="manage-courses"
+                            element={<ManageCourses />}
+                        />
+                        <Route
+                            path="manage-teaching-staff"
+                            element={<ManageTeachingStaff />}
+                        />
+                        <Route
+                            path="manage-schedules"
+                            element={<ManageSchedules />}
+                        />
+                    </Route>
+                    <Route path="my-schedule" element={<TimeTableSchedule />} />
+                    <Route path="profile" element={<Profile />} />
+                </Route>
                 <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster

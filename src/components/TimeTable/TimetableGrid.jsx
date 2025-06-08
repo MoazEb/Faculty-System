@@ -7,6 +7,7 @@ export default function TimetableGrid({
     days,
     handleCellClick,
     handleDeleteCourse,
+    isEditable = true,
 }) {
     if (!selectedLevel) return null;
 
@@ -82,7 +83,7 @@ export default function TimetableGrid({
                                         key={hour}
                                         colSpan={colspan}
                                         onClick={() => handleCellClick(interval, day)}
-                                        className={`group relative border border-gray-200 dark:border-primary p-1.5 text-center cursor-pointer transition-all duration-150 hover:shadow-sm rounded min-w-[100px] h-16 md:h-20 ${
+                                        className={`group relative border border-gray-200 dark:border-primary p-1 md:p-1.5 text-center cursor-pointer transition-all duration-150 hover:shadow-sm rounded min-w-[80px] md:min-w-[100px] h-20 md:h-24 ${
                                             isLecture
                                                 ? "bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-800/40"
                                                 : "bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-800/40"
@@ -100,21 +101,23 @@ export default function TimetableGrid({
                                                 {isLecture ? "Lecture" : "Practical"}
                                             </p>
                                         </div>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteCourse({ interval, day });
-                                            }}
-                                            title="Delete Interval"
-                                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-red-400"
-                                        >
-                                            <TrashIcon size={10} />
-                                        </button>
+                                        {isEditable && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteCourse({ interval, day });
+                                                }}
+                                                title="Delete Interval"
+                                                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-opacity duration-150 focus:outline-none focus:ring-2 focus:ring-red-400"
+                                            >
+                                                <TrashIcon size={10} />
+                                            </button>
+                                        )}
                                     </td>
                                 );
                             }
 
-                            return <td key={hour} className="border border-gray-200 dark:border-neutral-300/15 min-w-[100px] h-16 md:h-20" />;
+                            return <td key={hour} className="border border-gray-200 dark:border-neutral-300/15 min-w-[80px] md:min-w-[100px] h-20 md:h-24" />;
                         })}
                     </tr>
                 ))}

@@ -14,12 +14,12 @@ export const adminNavigation = [
 
 export const teachingStaffNavigation = [
     // { name: "Home", href: "/", icon: HouseIcon },
-    { name: "View Timetable", href: "/timetables", icon: CalendarIcon },
+    { name: "My Schedule", href: "/my-schedule", icon: CalendarIcon },
     { name: "Profile", href: "/profile", icon: UserIcon }
 ];
 
 export const studentsNavigation = [
     // { name: "Home", href: "/", icon: HouseIcon },
-    { name: "View Timetable", href: "/timetables", icon: CalendarIcon },
+    { name: "My Schedule", href: "/my-schedule", icon: CalendarIcon },
     { name: "Profile", href: "/profile", icon: UserIcon }
 ];
