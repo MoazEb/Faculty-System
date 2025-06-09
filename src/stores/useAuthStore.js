@@ -13,12 +13,15 @@ const useAuthStore = create((set, get) => ({
     login: async (credentials) => {
         set({ isLoading: true });
         try {
+            alert(1)
             const res = await api.post('/Authentications', credentials);
             const { token, refreshToken, refreshTokenExpireTime } = res.data;
+            alert(2)
 
             if (!token || !refreshToken) {
                 throw new Error('Invalid authentication response');
             }
+            alert(3)
 
             const cookieOptions = {
                 secure: process.env.NODE_ENV === 'production',
