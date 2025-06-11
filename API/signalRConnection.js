@@ -86,6 +86,9 @@ const stopConnection = async () => {
     }
 };
 
+// Automatically stop the connection on page unload
+window.addEventListener('beforeunload', stopConnection);
+
 // ================== CLIENT TO SERVER METHODS ==================
 
 // 1. Generate TimeTable
@@ -98,6 +101,7 @@ const generateTimeTable = async (excludeModel = null, departmentId = 1) => {
             CoursesId: [],
             StaffUserName: []
         };
+        console.log("excludeModel", excludeModel);
         await timeTableHubConnection.invoke("generateTimeTableContext", excludeModel || defaultExcludeModel, departmentId);
     } catch (error) {
         console.error('Failed to generate timetable:', error);

@@ -32,6 +32,45 @@ export const useTeachingStaffStore = create(
                 }
             },
 
+            getAllTeachingStaff: async () => {
+                try {
+                    set({ isLoading: true });
+
+                    // Fetch teaching assistants (level 6)
+                    const taParams = {
+                        page: 0,
+                        level: 6,
+                        gender: "",
+                        name: "",
+                    };
+                    const taResponse = await fetchTeachingStaffApi(taParams);
+
+                    // Fetch professors/doctors (level 7)
+                    const profParams = {
+                        page: 0,
+                        level: 7,
+                        gender: "",
+                        name: "",
+                    };
+                    const profResponse = await fetchTeachingStaffApi(profParams);
+
+                    // Combine results
+                    const allStaff = [
+                        ...taResponse.data.results,
+                        ...profResponse.data.results
+                    ];
+                    console.log("all staff", allStaff);
+                    set({ teachingStaff: allStaff });
+                    return allStaff;
+                } catch (error) {
+                    toast.error(error.response?.data?.detail || "Error fetching all teaching staff");
+                    console.error("Error fetching all teaching staff:", error);
+                    return [];
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
             setFilters: (newFilters) => {
                 const oldFilters = get().filters;
                 const updatedFilters = { ...oldFilters, ...newFilters };
