@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import Modal from "react-modal";
+import CustomSelect from "../common/CustomSelect";
 import Spinner from "../common/Spinner";
 import { TrashIcon, PlusIcon, LinkIcon, LinkBreakIcon } from "@phosphor-icons/react";
 import { useDependenciesStore } from "../../stores/useDependenciesStore";
@@ -31,7 +32,7 @@ const ManageDependenciesModal = ({ isOpen, onClose, course }) => {
     }, [isOpen, course, stableFetchAllData, stableResetDependencies]);
     
     const handleAddChildDependency = async () => {
-        await handleAddChildDependencyStore(course.id, selectedCourseToAdd);
+        await handleAddChildDependencyStore(course.id);
     };
 
     const handleDeleteDependency = async (parentId) => {
@@ -45,6 +46,13 @@ const ManageDependenciesModal = ({ isOpen, onClose, course }) => {
         c.id !== course?.id && // Cannot add itself
         !currentRelatedCourseIds.has(c.id) // Not already a child or parent dependency
     );
+
+    const selectOptions = filteredCoursesForSelection.map(c => ({
+        value: c.id,
+        label: `${c.name} (${c.code}) - Level ${c.level}`
+    }));
+
+    const selectedValue = selectOptions.find(option => option.value === selectedCourseToAdd);
 
     return (
         <Modal
@@ -77,22 +85,15 @@ const ManageDependenciesModal = ({ isOpen, onClose, course }) => {
                                 Add New Pre-requisite for <span className="font-bold text-primary">{course?.code || "this course"}</span>
                             </label>
                             <div className="relative flex items-center gap-2">
-                                <select
+                                <CustomSelect
                                     id="addDependencySelect"
-                                    value={selectedCourseToAdd}
-                                    onChange={(e) => setSelectedCourseToAdd(e.target.value)}
-                                    className={`flex-grow min-w-0 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-neutral-700 dark:border-neutral-500 dark:text-white ${(isLoading || isFetchingData || filteredCoursesForSelection.length === 0) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                                    disabled={isLoading || isFetchingData || filteredCoursesForSelection.length === 0}
-                                >
-                                    <option value="">
-                                        {isFetchingData && !allCourses.length ? "Loading courses..." : "Select a course..."}
-                                    </option>
-                                    {filteredCoursesForSelection.map((c) => (
-                                        <option key={c.id} value={c.id}>
-                                            {c.name} ({c.code}) - Level {c.level}
-                                        </option>
-                                    ))}
-                                </select>
+                                    options={selectOptions}
+                                    value={selectedValue}
+                                    onChange={(option) => setSelectedCourseToAdd(option ? option.value : "")}
+                                    placeholder={isFetchingData && !allCourses.length ? "Loading courses..." : "Select a course..."}
+                                    isDisabled={isLoading || isFetchingData || filteredCoursesForSelection.length === 0}
+                                    isLoading={isFetchingData && !allCourses.length}
+                                />
                                 <button
                                     onClick={handleAddChildDependency}
                                     disabled={isLoading || isFetchingData || !selectedCourseToAdd}

@@ -19,10 +19,8 @@ export const useDependenciesStore = create(
             try {
                 const [depsResponse, ...courseResponses] = await Promise.all([
                     getCourseDependencies(courseId),
-                    getCourses(0, 1),
-                    getCourses(0, 2),
-                    getCourses(0, 3),
-                    getCourses(0, 4)
+                    getCourses({ page: 0, level: "", semester: 1 }),
+                    getCourses({ page: 0, level: "", semester: 2 }),
                 ]);
 
                 const childDependencies = depsResponse.data?.childs || [];
@@ -47,13 +45,13 @@ export const useDependenciesStore = create(
             }
         },
 
-        handleAddChildDependency: async (courseId, childCourseId) => {
+        handleAddChildDependency: async (courseId) => {
+            const { selectedCourseToAdd: childCourseId, childDependencies, parentDependencies } = get();
             if (!childCourseId) {
                 toast.error("Please select a course to add as a pre-requisite.");
                 return;
             }
 
-            const { childDependencies, parentDependencies } = get();
             if (childDependencies.some(dep => dep.id === childCourseId) || parentDependencies.some(dep => dep.id === childCourseId)) {
                 toast.error("This course is already related as a dependency.");
                 return;
