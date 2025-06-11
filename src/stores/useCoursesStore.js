@@ -36,6 +36,42 @@ export const useCoursesStore = create(
                 }
             },
 
+            getAllCourses: async () => {
+                try {
+                    set({ isLoading: true });
+
+                    // Define all level and semester combinations
+                    const levelSemesterCombinations = [
+                        { level: 1, semester: 1 },
+                        { level: 1, semester: 2 },
+                        { level: 2, semester: 1 },
+                        { level: 2, semester: 2 },
+                        { level: 3, semester: 1 },
+                        { level: 3, semester: 2 },
+                        { level: 4, semester: 1 },
+                        { level: 4, semester: 2 },
+                    ];
+
+                    const responses = await Promise.all(
+                        levelSemesterCombinations.map(params =>
+                            fetchCoursesApi({ page: 0, ...params })
+                        )
+                    );
+
+                    // Combine all results
+                    const allCourses = responses.flatMap(response => response.data.results);
+
+                    set({ courses: allCourses });
+                    return allCourses;
+                } catch (error) {
+                    toast.error(error.response?.data?.detail || "Error fetching all courses");
+                    console.error("Error fetching all courses:", error);
+                    return [];
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
             setFilters: (newFilters) => {
                 const oldFilters = get().filters;
                 const updatedFilters = { ...oldFilters, ...newFilters };
