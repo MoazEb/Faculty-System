@@ -21,6 +21,7 @@ export default function Profile() {
 
     useEffect(() => {
         getPersonalInfo();
+        console.log("personalInfo", personalInfo);
     }, [getPersonalInfo]);
 
     const getInitials = (name = "") =>
@@ -37,6 +38,7 @@ export default function Profile() {
     };
 
     const LEVEL_MAP = {
+        0: "Admin",
         1: "Level 1",
         2: "Level 2",
         3: "Level 3",
@@ -161,7 +163,7 @@ export default function Profile() {
                                 label="Gender"
                                 value={GENDER_MAP[personalInfo.gender]}
                             />
-                            {personalInfo.level && (
+                            {personalInfo.level  !== undefined && (
                                 <DetailItem
                                     icon={<GraduationCapIcon size={24} className="text-primary dark:text-primary-light" />}
                                     label="Level"
