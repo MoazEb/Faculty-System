@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getMySchedule, getProfile } from "../../API/endpoints";
+import { getMySchedule } from "../../API/endpoints";
 import useAuthStore from "./useAuthStore";
 
 const useMyScheduleStore = create((set, get) => ({
@@ -15,15 +15,9 @@ const useMyScheduleStore = create((set, get) => ({
                 throw new Error("User not found.");
             }
 
-            const profileRes = await getProfile(fullId);
-            const level = profileRes.data?.level;
+            const scheduleRes = await getMySchedule(fullId);
+            set({ schedule: scheduleRes.data, isLoading: false });
 
-            if (level) {
-                const scheduleRes = await getMySchedule(level);
-                set({ schedule: scheduleRes.data, isLoading: false });
-            } else {
-                throw new Error("Could not determine user level.");
-            }
         } catch (err) {
             const errorMessage = err.message || "Failed to fetch schedule.";
             set({ error: errorMessage, isLoading: false });
