@@ -75,8 +75,8 @@ const ManageDependenciesModal = ({ isOpen, onClose, course }) => {
                 </div>
 
 
-                {isFetchingData && !allCourses.length && !childDependencies.length && !parentDependencies.length ? (
-                    <div className="flex justify-center items-center h-64"><Spinner size={10} /></div>
+                {isFetchingData ? (
+                    <div className="flex justify-center items-center h-64"><Spinner size={10} color="text-primary" /></div>
                 ) : (
                     <>
                         {/* Add Pre-requisite (Child) Section */}

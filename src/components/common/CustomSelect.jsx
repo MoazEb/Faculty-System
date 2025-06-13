@@ -11,10 +11,12 @@ const CustomSelect = ({
     isLoading,
     isMulti = false
 }) => {
+    const isDarkMode = window.localStorage.getItem('theme') === 'dark';
+    
     const customStyles = {
         control: (base, state) => ({
             ...base,
-            backgroundColor: 'var(--color-secondary-dark)',
+            backgroundColor: isDarkMode ? 'var(--color-secondary-dark)' : 'white',
             borderColor: state.isFocused ? 'var(--color-primary)' : '#4b5563',
             boxShadow: state.isFocused ? '0 0 0 1px var(--color-primary)' : 'none',
             '&:hover': {
@@ -23,13 +25,13 @@ const CustomSelect = ({
         }),
         menu: (base) => ({
             ...base,
-            backgroundColor: 'var(--color-primary-dark)',
+            backgroundColor: isDarkMode ? 'var(--color-primary-dark)' : 'white',
             zIndex: 9999,
         }),
         option: (base, { isDisabled, isFocused, isSelected }) => ({
             ...base,
             backgroundColor: isDisabled ? undefined : isSelected ? 'var(--color-primary)' : isFocused ? 'var(--color-secondary)' : undefined,
-            color: isDisabled ? '#9ca3af' : isSelected ? 'white' : 'var(--color-primary-light)',
+            color: isDisabled ? '#9ca3af' : isSelected ? 'white' : isDarkMode ? 'var(--color-primary-light)' : 'var(--color-primary-dark)',
             cursor: isDisabled ? 'not-allowed' : 'default',
             ':active': {
                 ...base[':active'],
@@ -38,11 +40,11 @@ const CustomSelect = ({
         }),
         singleValue: (provided) => ({
             ...provided,
-            color: 'var(--color-primary-light)',
+            color: isDarkMode ? 'var(--color-primary-light)' : 'var(--color-primary-dark)',
         }),
         input: (provided) => ({
             ...provided,
-            color: 'var(--color-primary-light)',
+            color: isDarkMode ? 'var(--color-primary-light)' : 'var(--color-primary-dark)',
         }),
         multiValue: (base) => ({
             ...base,
