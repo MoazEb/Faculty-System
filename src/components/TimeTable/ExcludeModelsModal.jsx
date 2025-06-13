@@ -74,8 +74,8 @@ const ExcludeModelsModal = ({ show, onClose, onConfirm }) => {
             <h2 className="text-xl font-semibold mb-6 dark:text-primary-light text-center">Exclude Models from Generation</h2>
 
             {isLoading ? (
-                <div className="flex justify-center items-center h-60">
-                    <Spinner />
+                <div className="flex justify-center items-center h-64">
+                    <Spinner size={10} color="text-primary" />
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

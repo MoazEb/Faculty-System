@@ -63,6 +63,9 @@ export const useTimetableStore = create(
             // Exclude Models Modal state
             showExcludeModelsModal: false,
 
+            // Searching State
+            isSearching: false,
+
             // Action to set the deleting state
             setIsDeleting: (deleting) => set({ isDeleting: deleting }),
             // Actions to manage delete confirmation modal state
@@ -349,13 +352,13 @@ export const useTimetableStore = create(
                     toast.error("Please provide staff username and required hours.");
                     return;
                 }
-                set({ isLoading: true });
+                set({ isSearching: true });
                 try {
                     await findValidPlacesForStaff(staffUsername, parseInt(requiredHours));
                 } catch (error) {
                     toast.error("Failed to find valid places for staff");
                 } finally {
-                    set({ isLoading: false });
+                    set({ isSearching: false });
                 }
             },
 
@@ -364,13 +367,13 @@ export const useTimetableStore = create(
                     toast.error("Please provide place name and required hours.");
                     return;
                 }
-                set({ isLoading: true });
+                set({ isSearching: true });
                 try {
                     await findValidStaffForPlace(placeName, parseInt(requiredHours));
                 } catch (error) {
                     toast.error("Failed to find valid staff for place");
                 } finally {
-                    set({ isLoading: false });
+                    set({ isSearching: false });
                 }
             }
         }),

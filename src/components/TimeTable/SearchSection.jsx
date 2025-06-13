@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from "react-hot-toast";
 import { useTimetableStore } from "../../stores/useTimetableStore";
+import Spinner from '../common/Spinner';
 
 const SearchSection = () => {
     const {
@@ -10,6 +11,7 @@ const SearchSection = () => {
         placesSearchResults,
         findValidPlacesForStaff,
         findValidStaffForPlace,
+        isSearching,
     } = useTimetableStore();
 
     const [selectedStaffUsername, setSelectedStaffUsername] = useState('');
@@ -96,17 +98,19 @@ const SearchSection = () => {
                 <div className="flex space-x-3 mt-4">
                     <button
                         onClick={handleStaffSearch}
-                        disabled={!selectedStaffUsername || !requiredHours}
-                        className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary disabled:bg-gray-400 disabled:dark:bg-neutral-700 cursor-pointer disabled:cursor-not-allowed"
+                        disabled={!selectedStaffUsername || !requiredHours || isSearching}
+                        className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary disabled:bg-gray-400 disabled:dark:bg-neutral-700 cursor-pointer disabled:cursor-not-allowed flex items-center"
                     >
-                        Search Places for Staff
+                        {isSearching && <Spinner color="text-white" size="4" />}
+                        <span className="ml-2">Search Places for Staff</span>
                     </button>
                     <button
                         onClick={handlePlaceSearch}
-                        disabled={!selectedPlaceName || !requiredHours}
-                        className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary disabled:bg-gray-400 disabled:dark:bg-neutral-700 cursor-pointer disabled:cursor-not-allowed"
+                        disabled={!selectedPlaceName || !requiredHours || isSearching}
+                        className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary disabled:bg-gray-400 disabled:dark:bg-neutral-700 cursor-pointer disabled:cursor-not-allowed flex items-center"
                     >
-                        Search Staff for Place
+                        {isSearching && <Spinner color="text-white" size="4" />}
+                        <span className="ml-2">Search Staff for Place</span>
                     </button>
                 </div>
             </div>
