@@ -84,6 +84,7 @@ export default function ManageTeachingStaff() {
                 onAddStaff={handleAddStaff}
                 onSearch={handleSearch}
                 onFilterChange={handleFilterChange}
+                currentFilters={filters}
             />
 
             <div className="lg:bg-white lg:dark:bg-secondary-dark lg:shadow-md lg:rounded-lg overflow-hidden">
@@ -146,6 +147,7 @@ export default function ManageTeachingStaff() {
                     isOpen={isAddModalOpen}
                     onClose={() => {
                         setIsAddModalOpen(false);
+                        getTeachingStaff(); // Refresh the list after adding
                     }}
                     selectedLevel={filters.level}
                     selectedGender={filters.gender}

@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useTeachingStaffStore } from "../../stores/useTeachingStaffStore";
 import Spinner from "../common/Spinner";
 import { CaretDownIcon } from "@phosphor-icons/react";
+import { LEVEL_MAP } from "../../constants/levelMap";
 
 const EditTeachingStaffModal = ({ staff, isOpen, onClose }) => {
     const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ const EditTeachingStaffModal = ({ staff, isOpen, onClose }) => {
         lastName: "",
         gender: 0,
         role: 1, // 1 for teaching staff
-        level: 6, // Default to Teaching Assistant
+        level: 6, // Default to Demonstrator
         dateOfBirth: "",
         password: "",
     });
@@ -25,7 +26,7 @@ const EditTeachingStaffModal = ({ staff, isOpen, onClose }) => {
                 lastName: staff.lastName || "",
                 gender: typeof staff.gender === "number" ? staff.gender : 0,
                 role: 1, // Always 1 for teaching staff
-                level: staff.level || 6, // Default to Teaching Assistant if not specified
+                level: staff.level || 6, // Default to Demonstrator if not specified
                 dateOfBirth: staff.dateOfBirth || "",
                 password: "",
             });
@@ -118,8 +119,11 @@ const EditTeachingStaffModal = ({ staff, isOpen, onClose }) => {
                             className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
                             required
                         >
-                            <option value={6}>Teaching Assistant</option>
-                            <option value={7}>Teaching Lecturer</option>
+                            <option value={6}>{LEVEL_MAP[6]}</option>
+                            <option value={7}>{LEVEL_MAP[7]}</option>
+                            <option value={8}>{LEVEL_MAP[8]}</option>
+                            <option value={9}>{LEVEL_MAP[9]}</option>
+                            <option value={10}>{LEVEL_MAP[10]}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             <CaretDownIcon size={16} className="text-gray-400" />

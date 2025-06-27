@@ -1,5 +1,6 @@
 import React from "react";
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import { useStudentsStore } from "../../stores/useStudentsStore";
 
 // "firstName": "Ahmed",
 // "lastName": "Ali",
@@ -11,6 +12,8 @@ import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 // "dateOfBirth": "2008-03-02"
 
 export default function DesktopCard({ student, handleEdit, handleDelete }) {
+    const { getStudentLevelLabel } = useStudentsStore();
+    
     return (
         <div className="hidden lg:flex items-center py-4 px-6 bg-white dark:bg-secondary-dark dark:text-primary-light border-b border-gray-200 dark:border-neutral-600 hover:bg-primary/5 dark:hover:bg-primary/20  transition-colors duration-150 group">
             {/* Column 1: Student Name & Username */}
@@ -38,7 +41,7 @@ export default function DesktopCard({ student, handleEdit, handleDelete }) {
             {/* Column 3: Level */}
             <div className="flex-[0_0_10%] min-w-0 px-4">
                 <div className="text-center">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Level {student.level}</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">{getStudentLevelLabel(student.level)}</div>
                 </div>
             </div>
 

@@ -25,7 +25,7 @@ const ManageSchedules = () => {
         deleteStaffSchedules,
     } = useSchedulesStore();
     const { teachingPlaces, getTeachingPlaces, isLoading: isLoadingPlaces } = useTeachingPlacesStore();
-    const { teachingStaff, getTeachingStaff, isLoading: isLoadingStaff } = useTeachingStaffStore();
+    const { teachingStaff, getAllTeachingStaff, isLoading: isLoadingStaff } = useTeachingStaffStore();
     
     const [scheduleType, setScheduleType] = useState("place"); // "place" or "staff"
     const [selectedEntity, setSelectedEntity] = useState(null);
@@ -39,8 +39,8 @@ const ManageSchedules = () => {
 
     useEffect(() => {
         getTeachingPlaces();
-        getTeachingStaff();
-    }, []);
+        getAllTeachingStaff();
+    }, [getTeachingPlaces, getAllTeachingStaff]);
 
     useEffect(() => {
         if (selectedEntity) {

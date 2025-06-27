@@ -1,20 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import toast from "react-hot-toast";
 import { useTeachingStaffStore } from "../../stores/useTeachingStaffStore";
 import Spinner from "../common/Spinner";
 import { CaretDownIcon } from "@phosphor-icons/react";
+import { LEVEL_MAP } from "../../constants/levelMap";
 
-const AddTeachingStaffModal = ({ isOpen, onClose, selectedLevel }) => {
+const AddTeachingStaffModal = ({ isOpen, onClose, selectedLevel, selectedGender }) => {
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
-        gender: 0,
+        gender: selectedGender ? parseInt(selectedGender, 10) : 0,
         role: 1, // 1 for teaching staff
-        level: selectedLevel || 6, // Default to Teaching Assistant
+        level: selectedLevel ? parseInt(selectedLevel, 10) : 6, // Default to Demonstrator
         dateOfBirth: "",
         password: "",
     });
+
+    // Update formData when props change
+    useEffect(() => {
+        console.log("Selected level changed:", selectedLevel);
+        setFormData(prev => ({
+            ...prev,
+            level: selectedLevel ? parseInt(selectedLevel, 10) : 6,
+            gender: selectedGender ? parseInt(selectedGender, 10) : prev.gender
+        }));
+    }, [selectedLevel, selectedGender]);
 
     const { addTeachingStaff, isLoading } = useTeachingStaffStore();
 
@@ -32,8 +43,12 @@ const AddTeachingStaffModal = ({ isOpen, onClose, selectedLevel }) => {
             toast.error("Please fill all required fields.");
             return;
         }
-        await addTeachingStaff(formData);
-        onClose();
+        try {
+            await addTeachingStaff(formData);
+            onClose();
+        } catch (error) {
+            console.error("Error adding teaching staff:", error);
+        }
     };
 
     return (
@@ -93,6 +108,7 @@ const AddTeachingStaffModal = ({ isOpen, onClose, selectedLevel }) => {
                         </div>
                     </div>
                 </div>
+
                 <div className="mb-4">
                     <label htmlFor="level" className="block text-sm font-medium dark:text-gray-300 mb-1">
                         Position
@@ -106,8 +122,11 @@ const AddTeachingStaffModal = ({ isOpen, onClose, selectedLevel }) => {
                             className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
                             required
                         >
-                            <option value={6}>Teaching Assistant</option>
-                            <option value={7}>Teaching Lecturer</option>
+                            <option value={6}>{LEVEL_MAP[6]}</option>
+                            <option value={7}>{LEVEL_MAP[7]}</option>
+                            <option value={8}>{LEVEL_MAP[8]}</option>
+                            <option value={9}>{LEVEL_MAP[9]}</option>
+                            <option value={10}>{LEVEL_MAP[10]}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             <CaretDownIcon size={16} className="text-gray-400" />

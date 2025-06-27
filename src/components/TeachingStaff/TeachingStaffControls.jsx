@@ -1,7 +1,8 @@
 import React from "react";
 import { PlusIcon, MagnifyingGlassIcon, CaretDownIcon } from "@phosphor-icons/react";
+import { LEVEL_MAP } from "../../constants/levelMap";
 
-const TeachingStaffControls = ({ onAddStaff, onSearch, onFilterChange }) => {
+const TeachingStaffControls = ({ onAddStaff, onSearch, onFilterChange, currentFilters }) => {
     return (
         <div className="mb-6 p-4 bg-white dark:bg-secondary-dark shadow rounded-lg flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0 lg:space-x-4">
             {/* Search Bar */}
@@ -14,6 +15,7 @@ const TeachingStaffControls = ({ onAddStaff, onSearch, onFilterChange }) => {
                     placeholder="Search teaching staff..."
                     className="w-full pl-10 pr-4 py-3 lg:py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent dark:text-primary-light dark:placeholder:text-gray-400"
                     onChange={(e) => onSearch(e.target.value)}
+                    value={currentFilters?.name || ""}
                 />
             </div>
 
@@ -23,10 +25,13 @@ const TeachingStaffControls = ({ onAddStaff, onSearch, onFilterChange }) => {
                     <select
                         className="pl-4 pr-8 py-3 lg:py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent w-full sm:w-48 appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
                         onChange={(e) => onFilterChange("level", e.target.value)}
-                        defaultValue="6"
+                        value={currentFilters?.level || "6"}
                     >
-                        <option value="6">Teaching Assistant</option>
-                        <option value="7">Teaching Lecturer</option>
+                        <option value="6">{LEVEL_MAP[6]}</option>
+                        <option value="7">{LEVEL_MAP[7]}</option>
+                        <option value="8">{LEVEL_MAP[8]}</option>
+                        <option value="9">{LEVEL_MAP[9]}</option>
+                        <option value="10">{LEVEL_MAP[10]}</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                         <CaretDownIcon size={16} className="text-gray-400" />
@@ -36,6 +41,7 @@ const TeachingStaffControls = ({ onAddStaff, onSearch, onFilterChange }) => {
                     <select
                         className="pl-4 pr-8 py-3 lg:py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent w-full sm:w-40 appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
                         onChange={(e) => onFilterChange("gender", e.target.value)}
+                        value={currentFilters?.gender || ""}
                     >
                         <option value="">All Genders</option>
                         <option value="0">Male</option>
