@@ -1,20 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import toast from "react-hot-toast";
 import { useStudentsStore } from "../../stores/useStudentsStore";
 import Spinner from "../common/Spinner";
 import { CaretDownIcon } from "@phosphor-icons/react";
+import { LEVEL_MAP } from "../../constants/levelMap";
 
-const AddStudentModal = ({ isOpen, onClose, selectedLevel }) => {
+const AddStudentModal = ({ isOpen, onClose, selectedLevel, selectedGender }) => {
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
-        gender: 0,
+        gender: selectedGender ? parseInt(selectedGender, 10) : 0,
         role: 2,
-        level: selectedLevel || 1,
+        level: selectedLevel ? parseInt(selectedLevel, 10) : 1,
         dateOfBirth: "",
         password: "",
     });
+
+    // Update formData when props change
+    useEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            level: selectedLevel ? parseInt(selectedLevel, 10) : 1,
+            gender: selectedGender ? parseInt(selectedGender, 10) : prev.gender
+        }));
+    }, [selectedLevel, selectedGender]);
 
     const { addStudent, isLoading } = useStudentsStore();
 
@@ -32,8 +42,12 @@ const AddStudentModal = ({ isOpen, onClose, selectedLevel }) => {
             toast.error("Please fill all required fields.");
             return;
         }
-        await addStudent(formData);
-        onClose();
+        try {
+            await addStudent(formData);
+            onClose();
+        } catch (error) {
+            console.error("Error adding student:", error);
+        }
     };
 
     return (
@@ -95,7 +109,7 @@ const AddStudentModal = ({ isOpen, onClose, selectedLevel }) => {
                 </div>
                 <div className="mb-4">
                     <label htmlFor="level" className="block text-sm font-medium dark:text-gray-300 mb-1">
-                        Level (1-4)
+                        Level
                     </label>
                     <div className="relative w-full">
                         <select
@@ -106,11 +120,11 @@ const AddStudentModal = ({ isOpen, onClose, selectedLevel }) => {
                             className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
                             required
                         >
-                            {[1, 2, 3, 4].map((level) => (
-                                <option key={level} value={level}>
-                                    Level {level}
-                                </option>
-                            ))}
+                            <option value={1}>{LEVEL_MAP[1]}</option>
+                            <option value={2}>{LEVEL_MAP[2]}</option>
+                            <option value={3}>{LEVEL_MAP[3]}</option>
+                            <option value={4}>{LEVEL_MAP[4]}</option>
+                            <option value={5}>{LEVEL_MAP[5]}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             <CaretDownIcon size={16} className="text-gray-400" />

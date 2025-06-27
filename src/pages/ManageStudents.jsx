@@ -75,6 +75,7 @@ export default function ManageStudents() {
                 onAddStudent={handleAddStudent}
                 onSearch={handleSearch}
                 onFilterChange={handleFilterChange}
+                currentFilters={filters}
             />
 
             <div className="lg:bg-white lg:dark:bg-secondary-dark lg:shadow-md lg:rounded-lg overflow-hidden">
@@ -135,6 +136,7 @@ export default function ManageStudents() {
                     isOpen={isAddModalOpen}
                     onClose={() => {
                         setIsAddModalOpen(false);
+                        getStudents();
                     }}
                     selectedLevel={filters.level}
                     selectedGender={filters.gender}

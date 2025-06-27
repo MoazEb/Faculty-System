@@ -1,14 +1,17 @@
+// src/stores/useTeachingStaffStore.js
+
 import { create } from "zustand";
 import { persist } from 'zustand/middleware';
 import { getTeachingStaff as fetchTeachingStaffApi, addTeachingStaff as addTeachingStaffApi, updateTeachingStaff as updateTeachingStaffApi, deleteTeachingStaff as deleteTeachingStaffApi } from "../../API/endpoints";
 import toast from "react-hot-toast";
+import { LEVEL_MAP } from "../constants/levelMap";
 
 export const useTeachingStaffStore = create(
     persist(
         (set, get) => ({
             teachingStaff: [],
             isLoading: false,
-            filters: { level: 6, gender: "", name: "" }, // Default filters, 6 for Teaching Assistant
+            filters: { level: 6, gender: "", name: "" },
 
             setTeachingStaff: (teachingStaff) => set({ teachingStaff }),
 
@@ -18,7 +21,7 @@ export const useTeachingStaffStore = create(
                     set({ isLoading: true });
                     const params = {
                         page: 0,
-                        level: filters.level || 6, // API requires level
+                        level: filters.level || 6,
                         gender: filters.gender || "",
                         name: filters.name || "",
                     };
@@ -35,30 +38,15 @@ export const useTeachingStaffStore = create(
             getAllTeachingStaff: async () => {
                 try {
                     set({ isLoading: true });
+                    // Fetch all teaching levels from 6 to 10
+                    const teachingLevels = [6, 7, 8, 9, 10];
+                    const staffPromises = teachingLevels.map(level =>
+                        fetchTeachingStaffApi({ page: 0, level, gender: "", name: "" })
+                    );
 
-                    // Fetch teaching assistants (level 6)
-                    const taParams = {
-                        page: 0,
-                        level: 6,
-                        gender: "",
-                        name: "",
-                    };
-                    const taResponse = await fetchTeachingStaffApi(taParams);
+                    const responses = await Promise.all(staffPromises);
+                    const allStaff = responses.flatMap(res => res.data.results);
 
-                    // Fetch professors/doctors (level 7)
-                    const profParams = {
-                        page: 0,
-                        level: 7,
-                        gender: "",
-                        name: "",
-                    };
-                    const profResponse = await fetchTeachingStaffApi(profParams);
-
-                    // Combine results
-                    const allStaff = [
-                        ...taResponse.data.results,
-                        ...profResponse.data.results
-                    ];
                     console.log("all staff", allStaff);
                     set({ teachingStaff: allStaff });
                     return allStaff;
@@ -87,7 +75,7 @@ export const useTeachingStaffStore = create(
                     const staffData = { ...newTeachingStaffData, role: 1 };
                     await addTeachingStaffApi(staffData);
                     // After adding, filter by the new staff's level to show them
-                    get().setFilters({ level: staffData.level, gender: "", name: "" });
+                    set({ filters: { level: staffData.level, gender: "", name: "" } });
                     toast.success("Teaching staff added successfully!");
                 } catch (error) {
                     toast.error(error.response?.data?.errors?.userDetails || "Error adding teaching staff");
@@ -130,7 +118,7 @@ export const useTeachingStaffStore = create(
             },
 
             getStaffTypeLabel: (level) => {
-                return level === 6 ? "Assistant" : level === 7 ? "Lecturer" : "Unknown";
+                return LEVEL_MAP[level] || "Unknown";
             }
         }),
         {

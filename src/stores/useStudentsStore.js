@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from 'zustand/middleware';
 import { getStudents as fetchStudentsApi, addStudent as addStudentApi, updateStudent as updateStudentApi, deleteStudent as deleteStudentApi } from "../../API/endpoints";
 import toast from "react-hot-toast";
+import { LEVEL_MAP } from "../constants/levelMap";
 
 export const useStudentsStore = create(
     persist(
@@ -87,6 +88,10 @@ export const useStudentsStore = create(
                     set({ isLoading: false });
                 }
             },
+
+            getStudentLevelLabel: (level) => {
+                return LEVEL_MAP[level] || "Unknown";
+            }
         }),
         {
             name: 'students-storage',

@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useStudentsStore } from "../../stores/useStudentsStore";
 import Spinner from "../common/Spinner";
 import { CaretDownIcon } from "@phosphor-icons/react";
+import { LEVEL_MAP } from "../../constants/levelMap";
 
 const EditStudentModal = ({ student, isOpen, onClose }) => {
     const [formData, setFormData] = useState({
@@ -46,8 +47,12 @@ const EditStudentModal = ({ student, isOpen, onClose }) => {
             toast.error("Please fill all required fields.");
             return;
         }
-        await updateStudent(student.userName, { ...formData, password: formData.password || undefined });
-        onClose();
+        try {
+            await updateStudent(student.userName, { ...formData, password: formData.password || undefined });
+            onClose();
+        } catch (error) {
+            console.error("Error updating student:", error);
+        }
     };
 
     return (
@@ -107,7 +112,7 @@ const EditStudentModal = ({ student, isOpen, onClose }) => {
                 </div>
                 <div className="mb-4">
                     <label htmlFor="level" className="block text-sm font-medium dark:text-gray-300 mb-1">
-                        Level (1-4)
+                        Level
                     </label>
                     <div className="relative w-full">
                         <select
@@ -118,11 +123,11 @@ const EditStudentModal = ({ student, isOpen, onClose }) => {
                             className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none cursor-pointer dark:text-primary-light dark:bg-secondary-dark"
                             required
                         >
-                            {[1, 2, 3, 4].map((level) => (
-                                <option key={level} value={level}>
-                                    Level {level}
-                                </option>
-                            ))}
+                            <option value={1}>{LEVEL_MAP[1]}</option>
+                            <option value={2}>{LEVEL_MAP[2]}</option>
+                            <option value={3}>{LEVEL_MAP[3]}</option>
+                            <option value={4}>{LEVEL_MAP[4]}</option>
+                            <option value={5}>{LEVEL_MAP[5]}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             <CaretDownIcon size={16} className="text-gray-400" />
