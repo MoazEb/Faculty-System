@@ -197,7 +197,7 @@ const EditCourseModal = ({ course, isOpen, onClose }) => {
                             required
                         >
                             <option value={0}>Lecture</option>
-                            <option value={1}>Lab</option>
+                            <option value={1}>Practical</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             <CaretDownIcon size={16} className="text-gray-400" />

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import toast from "react-hot-toast";
 import { useCoursesStore } from "../../stores/useCoursesStore";
 import Spinner from "../common/Spinner";
 import { CaretDownIcon } from "@phosphor-icons/react";
+import CustomSelect from "../common/CustomSelect";
 
 const AddCourseModal = ({ isOpen, onClose, selectedLevel, selectedSemester }) => {
     const [formData, setFormData] = useState({
@@ -46,6 +47,18 @@ const AddCourseModal = ({ isOpen, onClose, selectedLevel, selectedSemester }) =>
         await addCourse(formData);
         onClose();
     };
+
+    const semesterOptions = [
+        { value: 1, label: "Semester 1" },
+        { value: 2, label: "Semester 2" },
+    ];
+
+    const typeOptions = [
+        { value: 0, label: "Lecture" },
+        { value: 1, label: "Practical" },
+    ];
+
+    if (!isOpen) return null;
 
     return (
         <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Add Course Modal">
@@ -183,7 +196,7 @@ const AddCourseModal = ({ isOpen, onClose, selectedLevel, selectedSemester }) =>
                             required
                         >
                             <option value={0}>Lecture</option>
-                            <option value={1}>Lab</option>
+                            <option value={1}>Practical</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             <CaretDownIcon size={16} className="text-gray-400" />

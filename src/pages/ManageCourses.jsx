@@ -89,11 +89,12 @@ const ManageCourses = () => {
 
             <div className="lg:bg-white lg:dark:bg-secondary-dark lg:shadow-md lg:rounded-lg overflow-hidden">
                 <div className="hidden lg:flex items-center py-3 px-4 bg-gray-50 dark:bg-neutral-600 dark:text-primary-light border-b border-gray-200 dark:border-neutral-600 font-semibold text-xs text-gray-600 uppercase tracking-wider">
-                    <div className="flex-[0_0_35%]">Course</div>
+                    <div className="flex-[0_0_30%]">Course</div>
                     <div className="flex-[0_0_10%] text-center px-1">Credits</div>
                     <div className="flex-[0_0_10%] text-center px-1">Lecture Hours</div>
                     <div className="flex-[0_0_10%] text-center px-1">Level</div>
                     <div className="flex-[0_0_10%] text-center px-1">Semester</div>
+                    <div className="flex-[0_0_10%] text-center px-1">Type</div>
                     <div className="flex-auto text-right pr-2">Actions</div>
                 </div>
 
