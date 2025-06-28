@@ -1,5 +1,41 @@
 @import "tailwindcss";
 
+/* latin */
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/poppins/v23/pxiEyp8kv8JHgFVrFJA.ttf) format('truetype');
+}
+
+/* latin */
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/poppins/v23/pxiByp8kv8JHgFVrLCz7V1s.ttf) format('truetype');
+}
+
+@font-face {
+    font-family: 'Cairo';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/cairo/v30/SLXgc1nY6HkvangtZmpQdkhzfH5lkSs2SgRjCAGMQ1z0hOA-W1Q.ttf) format('truetype');
+    unicode-range: U+0600-U+06FF;
+}
+
+@font-face {
+    font-family: 'Cairo';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/cairo/v30/SLXgc1nY6HkvangtZmpQdkhzfH5lkSs2SgRjCAGMQ1z0hAc5W1Q.ttf) format('truetype');
+    unicode-range: U+0600-U+06FF;
+}
+
 @property --angle {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -9,7 +45,7 @@
 
 /* add here any tailwind custom class you want */
 @theme {
-    --font-poppins: Poppins, Tahoma, Verdana, sans-serif;
+    --font-poppins: Poppins, 'Cairo', Tahoma, Verdana, sans-serif;
     --color-primary: #7e57c2;
     --color-secondary: #6a4aaa;
     --color-primary-dark: #212121;

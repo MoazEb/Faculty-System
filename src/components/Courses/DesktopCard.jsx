@@ -5,7 +5,7 @@ export default function DesktopCard({ course, handleEdit, handleDelete, handleMa
     return (
         <div className="hidden lg:flex items-center py-4 px-6 bg-white dark:bg-secondary-dark dark:text-primary-light border-b border-gray-200 dark:border-neutral-600 hover:bg-primary/5 dark:hover:bg-primary/20  transition-colors duration-150 group">
             {/* Column 1: Course Name & Code */}
-            <div className="flex-[0_0_35%] min-w-0 flex items-center pr-4 ">
+            <div className="flex-[0_0_30%] min-w-0 flex items-center pr-4 ">
                 <div className="min-w-0 w-full">
                     <div
                         className="font-semibold text-sm text-gray-800 dark:text-primary-light group-hover:text-primary transition-colors truncate"
@@ -49,7 +49,15 @@ export default function DesktopCard({ course, handleEdit, handleDelete, handleMa
                 </div>
             </div>
 
-            {/* Column 6: Actions */}
+            {/* Column 6: Type */}
+            <div className="flex-[0_0_10%] min-w-0 px-4">
+                <div className="text-center">
+                    {/* <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Type</div> */}
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">{course.type === 0 ? "Lecture" : "Practical"}</div>
+                </div>
+            </div>
+
+            {/* Column 7: Actions */}
             <div className="flex-auto min-w-0 flex justify-end items-center gap-2 pl-4">
                 <button
                     onClick={handleEdit}

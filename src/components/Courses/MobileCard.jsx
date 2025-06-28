@@ -40,31 +40,38 @@ export default function MobileCard({ course, handleEdit, handleDelete, handleMan
                 </div>
             </div>
 
-            {/* Course Metrics 
-            <div className="p-4">
-                <div className="grid grid-cols-4 gap-2">
-                    //Credit Hours
-                    <div className="p-2 bg-primary/5 font-medium rounded-lg border border-gray-100 text-center">
-                        <div className="text-lg text-gray-900">{course.creditHours}</div>
-                        <div className="text-xs text-gray-600">Credits</div>
+            {/* Course Metrics */}
+            <div className="p-4 space-y-2">
+                <div className="grid grid-cols-3 gap-2">
+                    {/*Credit Hours*/}
+                    <div className="p-2 bg-primary/5 dark:bg-primary-dark/20 font-medium rounded-lg border border-gray-100 dark:border-neutral-700 text-center">
+                        <div className="text-lg text-gray-900 dark:text-primary-light">{course.creditHours}</div>
+                        <div className="text-xs text-gray-600 dark:text-neutral-400">Credits</div>
                     </div>
-                    //Lecture Hours
-                    <div className="p-2 bg-primary/5 font-medium rounded-lg border border-gray-100 text-center">
-                        <div className="text-lg text-gray-900">{course.lectureHours}</div>
-                        <div className="text-xs text-gray-600">Hours</div>
+                    {/*Lecture Hours*/}
+                    <div className="p-2 bg-primary/5 dark:bg-primary-dark/20 font-medium rounded-lg border border-gray-100 dark:border-neutral-700 text-center">
+                        <div className="text-lg text-gray-900 dark:text-primary-light">{course.lectureHours}</div>
+                        <div className="text-xs text-gray-600 dark:text-neutral-400">Hours</div>
                     </div>
-                    //Level
-                    <div className="p-2 bg-primary/5 font-medium rounded-lg border border-gray-100 text-center">
-                        <div className="text-lg text-gray-900">{course.level}</div>
-                        <div className="text-xs text-gray-600">Level</div>
-                    </div>
-                    Semester
-                    <div className="p-2 bg-primary/5 font-medium rounded-lg border border-gray-100 text-center">
-                        <div className="text-lg text-gray-900">{course.semester}</div>
-                        <div className="text-xs text-gray-600">Semester</div>
+                    {/*Level*/}
+                    <div className="p-2 bg-primary/5 dark:bg-primary-dark/20 font-medium rounded-lg border border-gray-100 dark:border-neutral-700 text-center">
+                        <div className="text-lg text-gray-900 dark:text-primary-light">{course.level}</div>
+                        <div className="text-xs text-gray-600 dark:text-neutral-400">Level</div>
                     </div>
                 </div>
-            </div> */}
+                <div className="grid grid-cols-2 gap-2">
+                    {/*Semester*/}
+                    <div className="p-2 bg-primary/5 dark:bg-primary-dark/20 font-medium rounded-lg border border-gray-100 dark:border-neutral-700 text-center">
+                        <div className="text-lg text-gray-900 dark:text-primary-light">{course.semester}</div>
+                        <div className="text-xs text-gray-600 dark:text-neutral-400">Semester</div>
+                    </div>
+                    {/*Type*/}
+                    <div className="p-2 bg-primary/5 dark:bg-primary-dark/20 font-medium rounded-lg border border-gray-100 dark:border-neutral-700 text-center">
+                        <div className="text-lg text-gray-900 dark:text-primary-light">{course.type === 0 ? "Lecture" : "Practical"}</div>
+                        <div className="text-xs text-gray-600 dark:text-neutral-400">Type</div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
