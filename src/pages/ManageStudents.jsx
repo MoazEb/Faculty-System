@@ -6,34 +6,19 @@ import StudentControls from "../components/Students/StudentControls";
 import { useStudentsStore } from "../stores/useStudentsStore";
 import DeleteConfirmationModal from "../components/Students/DeleteConfirmationModal";
 import EditStudentModal from "../components/Students/EditStudentModal";
+import * as XLSX from "xlsx";
+import toast from "react-hot-toast";
 
 export default function ManageStudents() {
-    const { students, isLoading, getStudents, deleteStudent: deleteStudentFromStore, filters, setFilters } = useStudentsStore();
+    const { students, isLoading, getStudents, deleteStudent: deleteStudentFromStore, filters, setFilters, registerStudentsFromFile, fetchStudentsByLevel } = useStudentsStore();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(filters.name || "");
 
     useEffect(() => {
         getStudents();
     }, [getStudents]);
-
-    useEffect(() => {
-        setSearchTerm(filters.name || "");
-    }, [filters.name]);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            if (searchTerm !== filters.name) {
-                setFilters({ name: searchTerm });
-            }
-        }, 500);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [searchTerm, filters.name, setFilters]);
 
     const handleEditClick = (student) => {
         setSelectedStudent(student);
@@ -58,11 +43,94 @@ export default function ManageStudents() {
     };
 
     const handleSearch = (term) => {
-        setSearchTerm(term);
+        setFilters({ name: term });
     };
 
     const handleFilterChange = (filterName, value) => {
         setFilters({ [filterName]: value });
+    };
+
+    const downloadTemplate = () => {
+        const wb = XLSX.utils.book_new();
+        const headers = ["UserName", "FullName", "Gender", "Level", "DateOfBirth", "Password"];
+        const exampleData = ["john.doe", "John Doe", "Male", "1", "2000-01-01", "password123"];
+        const ws = XLSX.utils.aoa_to_sheet([headers, exampleData]);
+        ws["!cols"] = [
+            { wch: 15 },
+            { wch: 20 },
+            { wch: 10 },
+            { wch: 10 },
+            { wch: 15 },
+            { wch: 15 },
+        ];
+        XLSX.utils.book_append_sheet(wb, ws, "Template");
+        XLSX.writeFile(wb, "student_upload_template.xlsx");
+    };
+
+    const downloadStudentsByLevel = async (level) => {
+        const studentsToDownload = await fetchStudentsByLevel(level);
+        if (studentsToDownload.length === 0) {
+            toast.warning(`No students found for Level ${level}`);
+            return;
+        }
+
+        const wb = XLSX.utils.book_new();
+        const data = studentsToDownload.map(student => ({
+            UserName: student.userName,
+            FullName: student.fullName,
+            Gender: student.gender,
+            Level: student.level,
+            DateOfBirth: student.dateOfBirth,
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        ws["!cols"] = [
+            { wch: 15 },
+            { wch: 20 },
+            { wch: 10 },
+            { wch: 8 },
+            { wch: 12 },
+        ];
+        XLSX.utils.book_append_sheet(wb, ws, `Level${level}_Students`);
+        XLSX.writeFile(wb, `students_level${level}.xlsx`);
+        toast.success(`Downloaded students for Level ${level}`);
+    };
+
+    const handleFileUpload = async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const fileType = file.name.split(".").pop().toLowerCase();
+        if (!["xlsx", "xls"].includes(fileType)) {
+            toast.error("Please upload only Excel files (.xlsx or .xls)");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                if (jsonData.length === 0) {
+                    toast.warning("No valid student data found in the file.");
+                    return;
+                }
+                
+                await registerStudentsFromFile(file);
+
+            } catch (err) {
+                toast.error("Failed to parse Excel file.");
+                console.error(err);
+            }
+        };
+
+        reader.onerror = () => {
+            toast.error("Error reading Excel file");
+        };
+
+        reader.readAsArrayBuffer(file);
     };
 
     return (
@@ -76,6 +144,9 @@ export default function ManageStudents() {
                 onSearch={handleSearch}
                 onFilterChange={handleFilterChange}
                 currentFilters={filters}
+                onDownloadTemplate={downloadTemplate}
+                onDownloadStudents={downloadStudentsByLevel}
+                onFileUpload={handleFileUpload}
             />
 
             <div className="lg:bg-white lg:dark:bg-secondary-dark lg:shadow-md lg:rounded-lg overflow-hidden">

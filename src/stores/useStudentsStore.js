@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from 'zustand/middleware';
-import { getStudents as fetchStudentsApi, addStudent as addStudentApi, updateStudent as updateStudentApi, deleteStudent as deleteStudentApi } from "../../API/endpoints";
+import { getStudents as fetchStudentsApi, addStudent as addStudentApi, updateStudent as updateStudentApi, deleteStudent as deleteStudentApi, registerFromFile as registerFromFileApi } from "../../API/endpoints";
 import toast from "react-hot-toast";
 import { LEVEL_MAP } from "../constants/levelMap";
 
@@ -83,6 +83,39 @@ export const useStudentsStore = create(
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error deleting student");
                     console.error("Error deleting student:", error);
+                    throw error;
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
+            fetchStudentsByLevel: async (level) => {
+                try {
+                    const params = {
+                        page: 0,
+                        level: level,
+                        gender: "",
+                        name: "",
+                    };
+                    const response = await fetchStudentsApi(params);
+                    return response.data.results;
+                } catch (error) {
+                    toast.error(error.response.data.detail || "Error fetching students");
+                    console.error("Error fetching students:", error);
+                    return [];
+                }
+            },
+
+            registerStudentsFromFile: async (file) => {
+                try {
+                    set({ isLoading: true });
+                    await registerFromFileApi(file);
+                    await get().getStudents();
+                    toast.success("Students uploaded successfully!");
+                } catch (error) {
+                    const errorMessage = error.response?.data?.detail || "Error uploading students from file";
+                    toast.error(errorMessage);
+                    console.error("Error uploading students:", error);
                     throw error;
                 } finally {
                     set({ isLoading: false });
