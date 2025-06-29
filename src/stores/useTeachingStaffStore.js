@@ -9,7 +9,7 @@ export const useTeachingStaffStore = create((set, get) => ({
     teachingStaff: [],
     isLoading: false,
     isThereNextPage: false,
-    filters: { level: 6, gender: "", name: "", page: 0 },
+    filters: { level: "", gender: "", name: "", page: 0 },
 
     setTeachingStaff: (teachingStaff) => set({ teachingStaff }),
 
@@ -19,7 +19,7 @@ export const useTeachingStaffStore = create((set, get) => ({
             set({ isLoading: true });
             const params = {
                 page: filters.page || 0,
-                level: filters.level || 6,
+                level: filters.level,
                 gender: filters.gender || "",
                 name: filters.name || "",
             };
@@ -84,7 +84,7 @@ export const useTeachingStaffStore = create((set, get) => ({
             const staffData = { ...newTeachingStaffData, role: 1 };
             await addTeachingStaffApi(staffData);
             // After adding, filter by the new staff's level to show them
-            set({ filters: { level: staffData.level, gender: "", name: "" } });
+            get().setFilters({ level: staffData.level, gender: "", name: "" });
             toast.success("Teaching staff added successfully!");
         } catch (error) {
             toast.error(error.response?.data?.errors?.userDetails || "Error adding teaching staff");

@@ -49,8 +49,9 @@ const StudentControls = ({
                         <select
                             className="pl-4 pr-8 py-3 lg:py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent w-full sm:w-40 appearance-none cursor-pointer dark:text-primary-light dark:bg-neutral-700"
                             onChange={(e) => onFilterChange("level", e.target.value)}
-                            value={currentFilters.level || "1"}
+                            value={currentFilters.level || ""}
                         >
+                            <option value="">All Levels</option>
                             {[1, 2, 3, 4, 5].map(level => (
                                 <option key={level} value={level}>{LEVEL_MAP[level]}</option>
                             ))}

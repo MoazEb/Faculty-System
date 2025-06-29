@@ -95,7 +95,7 @@ const ManageCourses = () => {
                 Manage Courses
             </h1>
 
-            <CourseControls onAddCourse={handleAddCourse} onSearch={handleSearch} onFilterChange={handleFilterChange} />
+            <CourseControls onAddCourse={handleAddCourse} onSearch={handleSearch} onFilterChange={handleFilterChange} currentFilters={filters} searchTerm={searchTerm} />
 
             <div className="lg:bg-white lg:dark:bg-secondary-dark lg:shadow-md lg:rounded-lg overflow-hidden">
                 <div className="hidden lg:flex items-center py-3 px-4 bg-gray-50 dark:bg-neutral-600 dark:text-primary-light border-b border-gray-200 dark:border-neutral-600 font-semibold text-xs text-gray-600 uppercase tracking-wider">

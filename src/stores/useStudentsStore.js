@@ -7,7 +7,7 @@ export const useStudentsStore = create((set, get) => ({
     students: [],
     isLoading: false,
     isThereNextPage: false,
-    filters: { level: 1, gender: "", name: "", page: 0 },
+    filters: { level: "", gender: "", name: "", page: 0 },
 
     setStudents: (students) => set({ students }),
 
@@ -17,7 +17,7 @@ export const useStudentsStore = create((set, get) => ({
             set({ isLoading: true });
             const params = {
                 page: filters.page || 0,
-                level: filters.level || 1,
+                level: filters.level,
                 gender: filters.gender || "",
                 name: filters.name || "",
             };
@@ -57,7 +57,7 @@ export const useStudentsStore = create((set, get) => ({
             set({ isLoading: true });
             await addStudentApi(newStudentData);
             // After adding, filter by the new student's level to show them
-            get().setFilters({ level: newStudentData.level, gender: "", name: "" });
+            get().setFilters({ level: newStudentData.level, name: "" });
             toast.success("Student added successfully!");
         } catch (error) {
             toast.error(error.response.data.errors.userDetails || "Error adding student");

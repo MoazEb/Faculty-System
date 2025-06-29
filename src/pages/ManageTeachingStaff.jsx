@@ -97,6 +97,7 @@ export default function ManageTeachingStaff() {
                 onSearch={handleSearch}
                 onFilterChange={handleFilterChange}
                 currentFilters={filters}
+                searchTerm={searchTerm}
             />
 
             <div className="lg:bg-white lg:dark:bg-secondary-dark lg:shadow-md lg:rounded-lg overflow-hidden">

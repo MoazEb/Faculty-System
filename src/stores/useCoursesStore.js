@@ -6,7 +6,7 @@ export const useCoursesStore = create((set, get) => ({
     courses: [],
     isLoading: false,
     isThereNextPage: false,
-    filters: { level: 1, semester: 0, name: "", page: 0 },
+    filters: { level: "", semester: 0, name: "", page: 0 },
 
     setCourses: (courses) => set({ courses }),
 
@@ -16,13 +16,10 @@ export const useCoursesStore = create((set, get) => ({
             set({ isLoading: true });
             const params = {
                 page: filters.page || 0,
-                level: filters.level || 1,
+                level: filters.level,
                 name: filters.name || "",
+                semester: filters.semester,
             };
-
-            if (filters.semester !== "") {
-                params.semester = filters.semester;
-            }
 
             const response = await fetchCoursesApi(params);
             set({ courses: response.data.results, isThereNextPage: response.data.isThereNextPage });
