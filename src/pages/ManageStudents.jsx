@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import { getStudentTemplate } from "../../API/endpoints";
 
 export default function ManageStudents() {
-    const { students, isLoading, getStudents, deleteStudent: deleteStudentFromStore, filters, setFilters, registerStudentsFromFile, fetchStudentsByLevel } = useStudentsStore();
+    const { students, isLoading, getStudents, deleteStudent: deleteStudentFromStore, filters, setFilters, registerStudentsFromFile, fetchStudentsByLevel, isThereNextPage, goToPage } = useStudentsStore();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
@@ -49,6 +49,16 @@ export default function ManageStudents() {
 
     const handleFilterChange = (filterName, value) => {
         setFilters({ [filterName]: value });
+    };
+
+    const handleNextPage = () => {
+        goToPage(filters.page + 1);
+    };
+
+    const handlePrevPage = () => {
+        if (filters.page > 0) {
+            goToPage(filters.page - 1);
+        }
     };
 
     const downloadTemplate = async () => {
@@ -222,6 +232,27 @@ export default function ManageStudents() {
                     </div>
                 )}
             </div>
+
+            {/* Pagination Controls at the bottom */}
+            {students.length > 0 && (
+                <div className="mt-4 flex justify-between items-center">
+                    <button
+                        onClick={handlePrevPage}
+                        disabled={filters.page === 0}
+                        className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-secondary-dark dark:text-primary-light dark:border-gray-500 dark:hover:bg-gray-600 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                    >
+                        Previous
+                    </button>
+                    <span className="text-sm text-gray-700 dark:text-primary-light">Page {filters.page + 1}</span>
+                    <button
+                        onClick={handleNextPage}
+                        disabled={!isThereNextPage}
+                        className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-secondary-dark dark:text-primary-light dark:border-gray-500 dark:hover:bg-gray-600 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
 
             {isEditModalOpen && selectedStudent && (
                 <EditStudentModal

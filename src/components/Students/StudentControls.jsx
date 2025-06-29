@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { PlusIcon, MagnifyingGlassIcon, CaretDownIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, CaretDownIcon } from "@phosphor-icons/react";
 import { FiPlus, FiUpload, FiDownload, FiChevronDown } from "react-icons/fi";
 import { LEVEL_MAP } from "../../constants/levelMap";
 import UploadStudentsModal from "./UploadStudentsModal";
@@ -41,7 +41,7 @@ const StudentControls = ({
                         placeholder="Search students..."
                         className="w-full pl-10 pr-4 py-3 lg:py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent dark:text-primary-light dark:placeholder:text-gray-400 dark:bg-neutral-700"
                         onChange={(e) => onSearch(e.target.value)}
-                        value={currentFilters?.name || ""}
+                        value={currentFilters.name || ""}
                     />
                 </div>
                 <div className="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-4">
@@ -49,9 +49,9 @@ const StudentControls = ({
                         <select
                             className="pl-4 pr-8 py-3 lg:py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent w-full sm:w-40 appearance-none cursor-pointer dark:text-primary-light dark:bg-neutral-700"
                             onChange={(e) => onFilterChange("level", e.target.value)}
-                            value={currentFilters?.level || "1"}
+                            value={currentFilters.level || "1"}
                         >
-                            {[1,2,3,4,5].map(level => (
+                            {[1, 2, 3, 4, 5].map(level => (
                                 <option key={level} value={level}>{LEVEL_MAP[level]}</option>
                             ))}
                         </select>
@@ -63,7 +63,7 @@ const StudentControls = ({
                         <select
                             className="pl-4 pr-8 py-3 lg:py-2 border border-gray-300 dark:border-neutral-500 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent w-full sm:w-40 appearance-none cursor-pointer dark:text-primary-light dark:bg-neutral-700"
                             onChange={(e) => onFilterChange("gender", e.target.value)}
-                            value={currentFilters?.gender || ""}
+                            value={currentFilters.gender || ""}
                         >
                             <option value="">All Genders</option>
                             <option value="Male">Male</option>
@@ -107,7 +107,7 @@ const StudentControls = ({
                     {showDownloadMenu && (
                         <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-secondary-dark rounded-md shadow-lg z-50">
                             <div className="py-1">
-                                {[1,2,3,4,5].map((level) => (
+                                {[1, 2, 3, 4, 5].map((level) => (
                                     <button
                                         key={level}
                                         onClick={() => {

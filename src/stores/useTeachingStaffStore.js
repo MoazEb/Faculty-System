@@ -11,7 +11,8 @@ export const useTeachingStaffStore = create(
         (set, get) => ({
             teachingStaff: [],
             isLoading: false,
-            filters: { level: 6, gender: "", name: "" },
+            isThereNextPage: false,
+            filters: { level: 6, gender: "", name: "", page: 0 },
 
             setTeachingStaff: (teachingStaff) => set({ teachingStaff }),
 
@@ -20,13 +21,13 @@ export const useTeachingStaffStore = create(
                 try {
                     set({ isLoading: true });
                     const params = {
-                        page: 0,
+                        page: filters.page || 0,
                         level: filters.level || 6,
                         gender: filters.gender || "",
                         name: filters.name || "",
                     };
                     const response = await fetchTeachingStaffApi(params);
-                    set({ teachingStaff: response.data.results });
+                    set({ teachingStaff: response.data.results, isThereNextPage: response.data.isThereNextPage });
                 } catch (error) {
                     toast.error(error.response?.data?.detail || "Error fetching teaching staff");
                     console.error("Error fetching teaching staff:", error);
@@ -61,7 +62,18 @@ export const useTeachingStaffStore = create(
 
             setFilters: (newFilters) => {
                 const oldFilters = get().filters;
-                const updatedFilters = { ...oldFilters, ...newFilters };
+                const updatedFilters = { ...oldFilters, ...newFilters, page: 0 };
+
+                if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
+                    set({ filters: updatedFilters });
+                    get().getTeachingStaff();
+                }
+            },
+
+            goToPage: (page) => {
+                const { filters } = get();
+                const oldFilters = get().filters;
+                const updatedFilters = { ...filters, page };
 
                 if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
                     set({ filters: updatedFilters });

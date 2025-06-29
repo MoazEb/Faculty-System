@@ -8,7 +8,8 @@ export const useCoursesStore = create(
         (set, get) => ({
             courses: [],
             isLoading: false,
-            filters: { level: 1, semester: 0, name: "" },
+            isThereNextPage: false,
+            filters: { level: 1, semester: 0, name: "", page: 0 },
 
             setCourses: (courses) => set({ courses }),
 
@@ -17,7 +18,7 @@ export const useCoursesStore = create(
                 try {
                     set({ isLoading: true });
                     const params = {
-                        page: 0,
+                        page: filters.page || 0,
                         level: filters.level || 1,
                         name: filters.name || "",
                     };
@@ -27,7 +28,7 @@ export const useCoursesStore = create(
                     }
 
                     const response = await fetchCoursesApi(params);
-                    set({ courses: response.data.results });
+                    set({ courses: response.data.results, isThereNextPage: response.data.isThereNextPage });
                 } catch (error) {
                     toast.error(error.response.data.detail || "Error fetching courses");
                     console.error("Error fetching courses:", error);
@@ -74,7 +75,18 @@ export const useCoursesStore = create(
 
             setFilters: (newFilters) => {
                 const oldFilters = get().filters;
-                const updatedFilters = { ...oldFilters, ...newFilters };
+                const updatedFilters = { ...oldFilters, ...newFilters, page: 0 };
+
+                if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
+                    set({ filters: updatedFilters });
+                    get().getCourses();
+                }
+            },
+
+            goToPage: (page) => {
+                const { filters } = get();
+                const oldFilters = get().filters;
+                const updatedFilters = { ...filters, page };
 
                 if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
                     set({ filters: updatedFilters });

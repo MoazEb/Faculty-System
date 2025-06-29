@@ -8,7 +8,8 @@ export const useTeachingPlacesStore = create(
         (set, get) => ({
             teachingPlaces: [],
             isLoading: false,
-            filters: { type: "", name: "" }, // Default filters
+            isThereNextPage: false,
+            filters: { type: "", name: "", page: 0 }, // Default filters
 
             setTeachingPlaces: (teachingPlaces) => set({ teachingPlaces }),
 
@@ -17,12 +18,12 @@ export const useTeachingPlacesStore = create(
                 try {
                     set({ isLoading: true });
                     const params = {
-                        page: 0,
+                        page: filters.page || 0,
                         type: filters.type || "",
                         name: filters.name || "",
                     };
                     const response = await fetchTeachingPlacesApi(params);
-                    set({ teachingPlaces: response.data.results });
+                    set({ teachingPlaces: response.data.results, isThereNextPage: response.data.isThereNextPage });
                 } catch (error) {
                     toast.error(error.response?.data?.detail || "Error fetching teaching places");
                     console.error("Error fetching teaching places:", error);
@@ -33,7 +34,18 @@ export const useTeachingPlacesStore = create(
 
             setFilters: (newFilters) => {
                 const oldFilters = get().filters;
-                const updatedFilters = { ...oldFilters, ...newFilters };
+                const updatedFilters = { ...oldFilters, ...newFilters, page: 0 };
+
+                if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
+                    set({ filters: updatedFilters });
+                    get().getTeachingPlaces();
+                }
+            },
+
+            goToPage: (page) => {
+                const { filters } = get();
+                const oldFilters = get().filters;
+                const updatedFilters = { ...filters, page };
 
                 if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
                     set({ filters: updatedFilters });

@@ -9,7 +9,8 @@ export const useStudentsStore = create(
         (set, get) => ({
             students: [],
             isLoading: false,
-            filters: { level: 1, gender: "", name: "" }, // Default filters
+            isThereNextPage: false,
+            filters: { level: 1, gender: "", name: "", page: 0 },
 
             setStudents: (students) => set({ students }),
 
@@ -18,15 +19,15 @@ export const useStudentsStore = create(
                 try {
                     set({ isLoading: true });
                     const params = {
-                        page: 0,
-                        level: filters.level || 1, // API requires level
+                        page: filters.page || 0,
+                        level: filters.level || 1,
                         gender: filters.gender || "",
                         name: filters.name || "",
                     };
                     const response = await fetchStudentsApi(params);
-                    set({ students: response.data.results });
+                    set({ students: response.data.results, isThereNextPage: response.data.isThereNextPage });
                 } catch (error) {
-                    toast.error(error.response.data.detail || "Error fetching students");
+                    toast.error(error.response?.data?.detail || "Error fetching students");
                     console.error("Error fetching students:", error);
                 } finally {
                     set({ isLoading: false });
@@ -35,7 +36,18 @@ export const useStudentsStore = create(
 
             setFilters: (newFilters) => {
                 const oldFilters = get().filters;
-                const updatedFilters = { ...oldFilters, ...newFilters };
+                const updatedFilters = { ...oldFilters, ...newFilters, page: 0 };
+
+                if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
+                    set({ filters: updatedFilters });
+                    get().getStudents();
+                }
+            },
+
+            goToPage: (page) => {
+                const { filters } = get();
+                const oldFilters = get().filters;
+                const updatedFilters = { ...filters, page };
 
                 if (JSON.stringify(oldFilters) !== JSON.stringify(updatedFilters)) {
                     set({ filters: updatedFilters });
