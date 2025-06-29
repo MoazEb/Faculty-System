@@ -56,10 +56,12 @@ export const getProfile = async (username) => await api.get(`/Users/${username}`
 export const getMySchedule = async (username) => await api.get(`/TimeTables/${username}`);
 
 // students from file
-export const registerFromFile = async (file) => {
+export const getStudentTemplate = async () => await api.get('/FromFileRegisterations/0');
+
+export const registerStudentsFromFile = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    return await api.post('/FromFileRegistrations/students', formData, {
+    return await api.post('/FromFileRegisterations/0', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         }

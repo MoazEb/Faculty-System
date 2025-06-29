@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from 'zustand/middleware';
-import { getStudents as fetchStudentsApi, addStudent as addStudentApi, updateStudent as updateStudentApi, deleteStudent as deleteStudentApi, registerFromFile as registerFromFileApi } from "../../API/endpoints";
+import { getStudents as fetchStudentsApi, addStudent as addStudentApi, updateStudent as updateStudentApi, deleteStudent as deleteStudentApi, registerStudentsFromFile as registerFromFileApi } from "../../API/endpoints";
 import toast from "react-hot-toast";
 import { LEVEL_MAP } from "../constants/levelMap";
 

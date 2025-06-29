@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { PlusIcon, MagnifyingGlassIcon, CaretDownIcon } from "@phosphor-icons/react";
 import { FiPlus, FiUpload, FiDownload, FiChevronDown } from "react-icons/fi";
 import { LEVEL_MAP } from "../../constants/levelMap";
+import UploadStudentsModal from "./UploadStudentsModal";
 
 const StudentControls = ({
     onAddStudent,
@@ -14,6 +15,7 @@ const StudentControls = ({
 }) => {
     const [showDownloadMenu, setShowDownloadMenu] = useState(false);
     const downloadMenuRef = useRef(null);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -78,16 +80,13 @@ const StudentControls = ({
                     <FiPlus className="h-5 w-5 md:mr-2" />
                     <span className="hidden md:inline font-light">Add Student</span>
                 </button>
-                <label className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center cursor-pointer">
+                <button
+                    onClick={() => setIsUploadModalOpen(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center cursor-pointer"
+                >
                     <FiUpload className="h-5 w-5 md:mr-2" />
                     <span className="hidden md:inline font-light">Upload XLSX</span>
-                    <input
-                        type="file"
-                        accept=".xlsx,.xls"
-                        onChange={onFileUpload}
-                        className="hidden"
-                    />
-                </label>
+                </button>
                 <button
                     onClick={onDownloadTemplate}
                     className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 flex items-center justify-center cursor-pointer"
@@ -125,6 +124,11 @@ const StudentControls = ({
                     )}
                 </div>
             </div>
+            <UploadStudentsModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                onUpload={onFileUpload}
+            />
         </div>
     );
 };

@@ -8,6 +8,7 @@ import DeleteConfirmationModal from "../components/Students/DeleteConfirmationMo
 import EditStudentModal from "../components/Students/EditStudentModal";
 import * as XLSX from "xlsx";
 import toast from "react-hot-toast";
+import { getStudentTemplate } from "../../API/endpoints";
 
 export default function ManageStudents() {
     const { students, isLoading, getStudents, deleteStudent: deleteStudentFromStore, filters, setFilters, registerStudentsFromFile, fetchStudentsByLevel } = useStudentsStore();
@@ -50,21 +51,64 @@ export default function ManageStudents() {
         setFilters({ [filterName]: value });
     };
 
-    const downloadTemplate = () => {
-        const wb = XLSX.utils.book_new();
-        const headers = ["UserName", "FullName", "Gender", "Level", "DateOfBirth", "Password"];
-        const exampleData = ["john.doe", "John Doe", "Male", "1", "2000-01-01", "password123"];
-        const ws = XLSX.utils.aoa_to_sheet([headers, exampleData]);
-        ws["!cols"] = [
-            { wch: 15 },
-            { wch: 20 },
-            { wch: 10 },
-            { wch: 10 },
-            { wch: 15 },
-            { wch: 15 },
-        ];
-        XLSX.utils.book_append_sheet(wb, ws, "Template");
-        XLSX.writeFile(wb, "student_upload_template.xlsx");
+    const downloadTemplate = async () => {
+        try {
+            const response = await getStudentTemplate();
+            const templateHtml = response.data[0].templateAsHtml;
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = templateHtml;
+
+            const infoBox = tempDiv.querySelector('.info-box');
+            const table = tempDiv.querySelector('table');
+            const dataForSheet = [];
+
+            if (infoBox) {
+                const paragraphs = infoBox.querySelectorAll('p');
+                paragraphs.forEach(p => {
+                    dataForSheet.push([p.innerText]);
+                });
+                dataForSheet.push([]);
+            }
+
+            if (table) {
+                const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+                dataForSheet.push(headers);
+
+                const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr =>
+                    Array.from(tr.querySelectorAll('td')).map(td => td.textContent)
+                );
+                dataForSheet.push(...rows);
+            }
+
+            if (dataForSheet.length === 0) {
+                toast.error("Could not parse template content.");
+                return;
+            }
+            
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(dataForSheet);
+
+            const colWidths = [];
+            dataForSheet.forEach(row => {
+                row.forEach((cell, i) => {
+                    const len = cell ? cell.toString().length : 0;
+                    if (!colWidths[i] || colWidths[i].wch < len) {
+                        colWidths[i] = { wch: len };
+                    }
+                });
+            });
+
+            ws['!cols'] = colWidths.map(w => ({ wch: (w.wch || 10) + 5 }));
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Student Registration');
+            XLSX.writeFile(wb, 'student_upload_template.xlsx');
+
+            toast.success("Template downloaded successfully!");
+        } catch (error) {
+            toast.error("Failed to download template.");
+            console.error("Error downloading template:", error);
+        }
     };
 
     const downloadStudentsByLevel = async (level) => {
@@ -95,8 +139,7 @@ export default function ManageStudents() {
         toast.success(`Downloaded students for Level ${level}`);
     };
 
-    const handleFileUpload = async (event) => {
-        const file = event.target.files?.[0];
+    const handleFileUpload = async (file) => {
         if (!file) return;
 
         const fileType = file.name.split(".").pop().toLowerCase();
